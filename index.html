@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101827">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="theme-color" content="#101827">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Splendor">
+<title>Splendor – digitális játékmester</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">DIGITÁLIS JÁTÉKMESTER</div>
+      <h1>Splendor</h1>
+    </div>
+    <div class="top-actions">
+      <button id="saveBtn" class="ghost">Mentés</button>
+      <button id="newBtn" class="danger">Új játék</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="setupView" class="panel setup">
+      <div class="hero">
+        <div class="gem-orb">◆</div>
+        <div>
+          <h2>Új parti</h2>
+          <p>A telefon vezeti a játékot, és nem enged szabálytalan lépést.</p>
+        </div>
+      </div>
+      <label>Játékosok száma
+        <select id="playerCount">
+          <option value="2">2 játékos</option>
+          <option value="3">3 játékos</option>
+          <option value="4" selected>4 játékos</option>
+        </select>
+      </label>
+      <div id="playerNames"></div>
+      <button id="startBtn" class="primary wide">Játék indítása</button>
+      <div class="note">
+        <b>Prototípus:</b> a standard 90 fejlődéskártya és 10 nemes adatkészlete be van építve.
+        A kártyák saját, egyszerűsített vizuális megjelenítést kapnak.
+      </div>
+    </section>
+
+    <section id="gameView" class="hidden">
+      <div id="turnBanner" class="turn-banner"></div>
+
+      <section class="board">
+        <div class="section-head"><h2>Nemesek</h2><span id="deckInfo"></span></div>
+        <div id="nobles" class="nobles"></div>
+
+        <div class="section-head"><h2>Fejlődéskártyák</h2><span id="drawInfo"></span></div>
+        <div id="market"></div>
+
+        <div class="section-head"><h2>Zsetonok</h2><span>Arany = joker</span></div>
+        <div id="bank" class="bank"></div>
+      </section>
+
+      <section id="players" class="players"></section>
+
+      <section class="actions panel">
+        <div class="section-head"><h2>Akció</h2><span>1 akció / kör</span></div>
+        <div class="action-grid">
+          <button data-action="take3">3 különböző zseton</button>
+          <button data-action="take2">2 azonos zseton</button>
+          <button data-action="reserve">Kártya tartalékolása</button>
+          <button data-action="buy">Kártya vásárlása</button>
+        </div>
+        <div id="actionArea"></div>
+      </section>
+
+      <section class="panel log-panel">
+        <div class="section-head"><h2>Napló</h2><button id="clearLog" class="ghost small">Törlés</button></div>
+        <div id="log"></div>
+      </section>
+    </section>
+  </main>
+</div>
+<div id="toast"></div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
