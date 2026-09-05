@@ -115,3 +115,45 @@ input,select,textarea{
   gap:9px;
 }
 .app-modal-actions button{min-height:48px}
+
+/* --- Splendor v3.4 reserved-card UX + pull-to-refresh prevention --- */
+html,body{
+  overscroll-behavior-y:none;
+}
+body{
+  overscroll-behavior:none;
+}
+.reserved-button{
+  width:100%;
+  text-align:left;
+  font:inherit;
+  border:0;
+  cursor:pointer;
+  background:transparent;
+}
+.reserved-button:not(:disabled){
+  color:var(--gold);
+}
+.reserved-button:disabled{
+  color:var(--muted);
+  opacity:1;
+  cursor:default;
+}
+.reserved-modal{
+  width:min(760px,100%);
+  max-height:min(90vh,720px);
+  overflow:auto;
+}
+.reserved-preview-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(130px,1fr));
+  gap:9px;
+  margin-bottom:16px;
+}
+.reserved-preview{
+  min-height:150px;
+  cursor:default;
+}
+@media(max-width:560px){
+  .reserved-preview-grid{grid-template-columns:repeat(2,minmax(120px,1fr))}
+}

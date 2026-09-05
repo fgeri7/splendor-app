@@ -748,7 +748,15 @@ function render(){
         <div class="mini-bonus">
           ${COLORS.map(c=>`<span class="mini">${pip(c,bonusCount(x,c))}</span>`).join("")}
         </div>
-        <div class="reserved">Tartalék: ${x.reserved.length}/3</div>
+        <button
+          type="button"
+          class="reserved reserved-button"
+          data-show-reserved="${x.id}"
+          ${x.id===p.id ? "" : "disabled"}
+        >
+          Tartalék kártyák: ${x.reserved.length}/3
+          ${x.id===p.id ? " · Megnézem" : ""}
+        </button>
 
       </div>
     `).join("");
@@ -761,6 +769,13 @@ function render(){
         </div>
       `)
       .join("");
+
+  document.querySelectorAll("[data-show-reserved]").forEach(btn=>{
+    btn.onclick=()=>{
+      const player=state.players.find(x=>x.id===btn.dataset.showReserved);
+      if(player?.id===p.id) showReserved(player);
+    };
+  });
 
   if(state.nobleChoice) return;
 
@@ -888,6 +903,45 @@ function renderTake2(){
 
     g.appendChild(b);
   });
+}
+
+function showReserved(p){
+  const overlay=document.createElement("div");
+  overlay.className="app-modal-backdrop reserved-modal-backdrop";
+
+  const cards=p.reserved.map(c=>cardHtml(c,"reserved-preview")).join("");
+
+  overlay.innerHTML=`
+    <div class="app-modal reserved-modal" role="dialog" aria-modal="true" aria-labelledby="reservedTitle">
+      <div class="app-modal-title" id="reservedTitle">${p.name} · Tartalék kártyák</div>
+      <div class="app-modal-text">
+        ${p.reserved.length ? "Ezeket a kártyákat tartod tartalékban." : "Nincs tartalék kártyád."}
+      </div>
+      ${p.reserved.length ? `<div class="reserved-preview-grid">${cards}</div>` : ""}
+      <div class="app-modal-actions">
+        <button type="button" class="choice" data-reserved-close>Bezárás</button>
+        ${p.reserved.length ? `<button type="button" class="primary" data-reserved-buy>Vásárlás</button>` : ""}
+      </div>
+    </div>
+  `;
+
+  const close=()=>overlay.remove();
+  overlay.querySelector("[data-reserved-close]").onclick=close;
+
+  const buyBtn=overlay.querySelector("[data-reserved-buy]");
+  if(buyBtn){
+    buyBtn.onclick=()=>{
+      close();
+      selectedAction="buy";
+      render();
+    };
+  }
+
+  overlay.addEventListener("click",e=>{
+    if(e.target===overlay) close();
+  });
+
+  document.body.appendChild(overlay);
 }
 
 function renderReserve(){
