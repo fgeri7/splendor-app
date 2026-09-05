@@ -212,17 +212,14 @@ function endTurn(){
 
   if(totalTokens(p)>10){
     showDiscard();
-    return false;
+    return;
   }
 
   claimNoble(p);
 
-  if(state.nobleChoice){
-    return false;
+  if(!state.nobleChoice){
+    checkEnd();
   }
-
-  checkEnd();
-  return true;
 }
 
 function checkEnd(){
@@ -338,7 +335,9 @@ function take3(colors){
   selectedColors=[];
   selectedAction=null;
 
-  if(endTurn()){
+  endTurn();
+
+  if(!state.nobleChoice){
     advance();
   }
 }
@@ -361,7 +360,9 @@ function take2(c){
 
   selectedAction=null;
 
-  if(endTurn()){
+  endTurn();
+
+  if(!state.nobleChoice){
     advance();
   }
 }
@@ -377,14 +378,29 @@ function reserve(card,t,hidden=false){
 
   if(hidden){
     if(!state.decks[t-1].length){
-      return toast("Ebben a pakliban már nincs kártya.");
+      return toast(
+        "Ebben a pakliban már nincs kártya."
+      );
     }
+
     card=state.decks[t-1].pop();
-    p.reserved.push({...card,hidden:true});
+
+    p.reserved.push({
+      ...card,
+      hidden:true
+    });
   }else{
-    const idx=state.market[t].findIndex(x=>x.id===card.id);
+    const idx=state.market[t].findIndex(
+      x=>x.id===card.id
+    );
+
     if(idx<0) return;
-    p.reserved.push({...card,hidden:false});
+
+    p.reserved.push({
+      ...card,
+      hidden:false
+    });
+
     state.market[t].splice(idx,1);
     refill(t);
   }
@@ -394,10 +410,19 @@ function reserve(card,t,hidden=false){
     p.tokens.gold++;
   }
 
-  log(`<b>${p.name}</b> ${hidden ? `vakon tartalékolt egy ${t}. szintű kártyát` : `tartalékolt egy ${t}. szintű kártyát`}.`);
+  log(
+    `<b>${p.name}</b> ${
+      hidden
+        ? `vakon tartalékolt egy ${t}. szintű kártyát`
+        : `tartalékolt egy ${t}. szintű kártyát`
+    }.`
+  );
 
   selectedAction=null;
-  if(endTurn()){
+
+  endTurn();
+
+  if(!state.nobleChoice){
     advance();
   }
 }
@@ -444,7 +469,9 @@ function buy(card,source,t,idx){
 
   selectedAction=null;
 
-  if(endTurn()){
+  endTurn();
+
+  if(!state.nobleChoice){
     advance();
   }
 }
@@ -737,25 +764,45 @@ function render(){
           </span>
         </div>
 
-        <div class="player-resource-summary">
-          <div class="token-summary"><span class="summary-icon token-icon">●</span><span>Zsetonok</span><b>${totalTokens(x)}</b></div>
-          <div class="card-summary"><span class="summary-icon card-icon">▭</span><span>Kártyák</span><b>${x.cards.length}</b></div>
-          <div class="noble-summary"><span class="summary-icon noble-icon">♛</span><span>Nemesek</span><b>${x.nobles.length}</b></div>
+        <div class="token-summary">
+          <span class="summary-label">Zsetonok</span>
+          <strong>${totalTokens(x)}</strong>
         </div>
+
         <div class="mini-tokens">
-          ${ALL.map(c=>`<span class="mini">${pip(c,x.tokens[c])}<b>${x.tokens[c]}</b></span>`).join("")}
+          ${
+            ALL.map(c=>`
+              <span class="mini-token">
+                <i class="dot ${c}"></i><b>${x.tokens[c]}</b>
+              </span>
+            `).join("")
+          }
         </div>
-        <div class="mini-bonus">
-          ${COLORS.map(c=>`<span class="mini">${pip(c,bonusCount(x,c))}</span>`).join("")}
+
+        <div class="ownership-row">
+          <div class="owned-stat">
+            <span class="card-count-icon" aria-hidden="true"></span>
+            <span><b>${x.cards.length}</b> kártya</span>
+          </div>
+          <div class="owned-stat noble-stat">
+            <span class="noble-count-icon" aria-hidden="true">♛</span>
+            <span><b>${x.nobles.length}</b> nemes</span>
+          </div>
         </div>
-        <button
-          type="button"
-          class="reserved reserved-button"
-          data-show-reserved="${x.id}"
-          ${x.id===p.id ? "" : "disabled"}
-        >
-          Tartalék kártyák: ${x.reserved.length}/3
-          ${x.id===p.id ? " · Megnézem" : ""}
+
+        <div class="bonus-row">
+          <span class="summary-label">Bónuszok</span>
+          ${
+            COLORS.map(c=>`
+              <span class="mini-card-bonus ${c}" title="${LABEL[c]}: ${bonusCount(x,c)}">
+                <i></i><b>${bonusCount(x,c)}</b>
+              </span>
+            `).join("")
+          }
+        </div>
+
+        <button class="reserved-summary ${x.id===p.id ? "can-open" : ""}" data-show-reserved="${x.id}" ${x.id===p.id ? "" : "disabled"}>
+          Tartalék kártyák: ${x.reserved.length}/3${x.id===p.id ? " · Megnézem" : ""}
         </button>
 
       </div>
@@ -769,13 +816,6 @@ function render(){
         </div>
       `)
       .join("");
-
-  document.querySelectorAll("[data-show-reserved]").forEach(btn=>{
-    btn.onclick=()=>{
-      const player=state.players.find(x=>x.id===btn.dataset.showReserved);
-      if(player?.id===p.id) showReserved(player);
-    };
-  });
 
   if(state.nobleChoice) return;
 
@@ -801,13 +841,6 @@ function render(){
 
   if(selectedAction==="buy")
     renderBuy();
-
-  if(selectedAction){
-    const summary=document.createElement("div");
-    summary.className="action-player-summary";
-    summary.innerHTML=`<span>Aktuális készlet</span><strong>${totalTokens(p)} zseton</strong><span>·</span><strong>${p.cards.length} kártya</strong><span>·</span><strong>${p.points} pont</strong>`;
-    actionArea.prepend(summary);
-  }
 }
 
 function renderTake3(){
@@ -905,50 +938,15 @@ function renderTake2(){
   });
 }
 
-function showReserved(p){
-  const overlay=document.createElement("div");
-  overlay.className="app-modal-backdrop reserved-modal-backdrop";
-
-  const cards=p.reserved.map(c=>cardHtml(c,"reserved-preview")).join("");
-
-  overlay.innerHTML=`
-    <div class="app-modal reserved-modal" role="dialog" aria-modal="true" aria-labelledby="reservedTitle">
-      <div class="app-modal-title" id="reservedTitle">${p.name} · Tartalék kártyák</div>
-      <div class="app-modal-text">
-        ${p.reserved.length ? "Ezeket a kártyákat tartod tartalékban." : "Nincs tartalék kártyád."}
-      </div>
-      ${p.reserved.length ? `<div class="reserved-preview-grid">${cards}</div>` : ""}
-      <div class="app-modal-actions">
-        <button type="button" class="choice" data-reserved-close>Bezárás</button>
-        ${p.reserved.length ? `<button type="button" class="primary" data-reserved-buy>Vásárlás</button>` : ""}
-      </div>
-    </div>
-  `;
-
-  const close=()=>overlay.remove();
-  overlay.querySelector("[data-reserved-close]").onclick=close;
-
-  const buyBtn=overlay.querySelector("[data-reserved-buy]");
-  if(buyBtn){
-    buyBtn.onclick=()=>{
-      close();
-      selectedAction="buy";
-      render();
-    };
-  }
-
-  overlay.addEventListener("click",e=>{
-    if(e.target===overlay) close();
-  });
-
-  document.body.appendChild(overlay);
-}
-
 function renderReserve(){
   const p=state.players[state.turn];
 
   if(p.reserved.length>=3){
-    actionArea.innerHTML=`<div class="note">Már 3 kártyád van tartalékban.</div>`;
+    actionArea.innerHTML=`
+      <div class="note">
+        Már 3 kártyád van tartalékban.
+      </div>
+    `;
     return;
   }
 
@@ -956,27 +954,31 @@ function renderReserve(){
     <div class="selected-count">
       Válassz egy látható kártyát, vagy húzz vakon valamelyik pakli tetejéről.
     </div>
+
     <div class="reserve-blind">
       <div class="reserve-blind-title">🂠 Vak tartalékolás</div>
       <div class="reserve-blind-buttons">
         ${[3,2,1].map(t=>`
-          <button class="choice" data-blind-reserve="${t}" ${state.decks[t-1].length===0?'disabled':''}>
-            🂠 ${t}. szint <small>${state.decks[t-1].length} lap maradt</small>
+          <button class="choice" data-blind-reserve="${t}"
+            ${state.decks[t-1].length===0 ? "disabled" : ""}>
+            🂠 ${t}. szint
+            <small>${state.decks[t-1].length} lap maradt</small>
           </button>
-        `).join('')}
+        `).join("")}
       </div>
     </div>
+
     <div class="selected-count">Látható kártyák</div>
   `;
 
-  const wrap=document.createElement('div');
-  wrap.className='card-row';
+  const wrap=document.createElement("div");
+  wrap.className="card-row";
 
   for(const t of [3,2,1]){
     state.market[t].forEach(c=>{
-      const d=document.createElement('div');
+      const d=document.createElement("div");
       d.innerHTML=cardHtml(c);
-      const el=d.querySelector('.card');
+      const el=d.firstElementChild;
       el.onclick=()=>reserve(c,t,false);
       wrap.appendChild(el);
     });
@@ -984,7 +986,7 @@ function renderReserve(){
 
   actionArea.appendChild(wrap);
 
-  document.querySelectorAll('[data-blind-reserve]').forEach(btn=>{
+  document.querySelectorAll("[data-blind-reserve]").forEach(btn=>{
     btn.onclick=()=>reserve(null,+btn.dataset.blindReserve,true);
   });
 }
@@ -1009,7 +1011,7 @@ function renderBuy(){
 
       d.innerHTML=cardHtml(c);
 
-      const el=d.querySelector(".card");
+      const el=d.firstElementChild;
 
       el.style.opacity=
         affordability(p,c)
@@ -1029,7 +1031,7 @@ function renderBuy(){
 
     d.innerHTML=cardHtml(c);
 
-    const el=d.querySelector(".card");
+    const el=d.firstElementChild;
 
     el.style.outline=
       "2px dashed #e6b84d";
@@ -1042,6 +1044,72 @@ function renderBuy(){
   });
 
   actionArea.appendChild(wrap);
+}
+
+function showReserved(playerId){
+  const me=state.players.find(x=>x.id===playerId);
+  const current=state.players[state.turn];
+  if(!me || me.id!==current.id) return;
+
+  const overlay=document.createElement("div");
+  overlay.className="app-modal-backdrop";
+  overlay.innerHTML=`
+    <div class="app-modal" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <div>
+          <div class="modal-eyebrow">${me.reserved.length}/3 TARTALÉK</div>
+          <h3>${me.name} tartalék kártyái</h3>
+        </div>
+        <button class="modal-close" type="button" aria-label="Bezárás">×</button>
+      </div>
+      <div class="reserved-modal-grid">
+        ${me.reserved.length ? me.reserved.map(c=>cardHtml(c,"reserved-card")).join("") : '<div class="modal-empty">Nincs tartalék kártyád.</div>'}
+      </div>
+      <button class="ghost wide modal-close-action" type="button">Bezárás</button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  const close=()=>overlay.remove();
+  overlay.addEventListener("click",e=>{ if(e.target===overlay) close(); });
+  overlay.querySelectorAll(".modal-close,.modal-close-action").forEach(b=>b.addEventListener("click",close));
+}
+
+function showConfirm(title,message,onConfirm){
+  const overlay=document.createElement("div");
+  overlay.className="app-modal-backdrop";
+  overlay.innerHTML=`
+    <div class="app-modal confirm-modal" role="dialog" aria-modal="true">
+      <div class="modal-head"><h3>${title}</h3><button class="modal-close" type="button" aria-label="Bezárás">×</button></div>
+      <p>${message}</p>
+      <div class="modal-actions">
+        <button class="ghost" data-cancel type="button">Mégse</button>
+        <button class="danger" data-confirm type="button">Új játék</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  const close=()=>overlay.remove();
+  overlay.addEventListener("click",e=>{if(e.target===overlay)close()});
+  overlay.querySelector("[data-cancel]").onclick=close;
+  overlay.querySelector(".modal-close").onclick=close;
+  overlay.querySelector("[data-confirm]").onclick=()=>{close();onConfirm()};
+}
+
+function preventPullToRefresh(){
+  document.documentElement.style.overscrollBehaviorY="none";
+  document.body.style.overscrollBehaviorY="none";
+  let startY=0;
+  document.addEventListener("touchstart",e=>{
+    if(e.touches.length===1) startY=e.touches[0].clientY;
+  },{passive:true});
+  document.addEventListener("touchmove",e=>{
+    if(e.touches.length!==1) return;
+    const dy=e.touches[0].clientY-startY;
+    const scroller=e.target.closest("#log,.nobles,.card-row,#actionArea");
+    if(window.scrollY<=0 && dy>0 && !scroller){
+      e.preventDefault();
+    }
+  },{passive:false});
 }
 
 function setup(){
@@ -1137,42 +1205,21 @@ document.getElementById(
   render();
 };
 
-function confirmNewGame(){
-  const overlay=document.createElement("div");
-  overlay.className="app-modal-backdrop";
-  overlay.innerHTML=`
-    <div class="app-modal" role="dialog" aria-modal="true" aria-labelledby="newGameTitle">
-      <div class="app-modal-title" id="newGameTitle">Új játék</div>
-      <div class="app-modal-text">Biztosan új játékot kezdesz? A jelenlegi játék mentése törlődik.</div>
-      <div class="app-modal-actions">
-        <button type="button" class="choice" data-modal-cancel>Mégse</button>
-        <button type="button" class="primary" data-modal-confirm>Új játék</button>
-      </div>
-    </div>
-  `;
-
-  const close=()=>overlay.remove();
-
-  overlay.querySelector("[data-modal-cancel]").onclick=close;
-  overlay.querySelector("[data-modal-confirm]").onclick=()=>{
-    localStorage.removeItem("splendor-prototype");
-    state=null;
-    selectedAction=null;
-    selectedColors=[];
-    close();
-    setup();
-  };
-
-  overlay.addEventListener("click",e=>{
-    if(e.target===overlay) close();
-  });
-
-  document.body.appendChild(overlay);
-};
-
 document.getElementById(
   "newBtn"
-).onclick=confirmNewGame;
+).onclick=()=>{
+  showConfirm(
+    "Új játék",
+    "Biztosan új játékot kezdesz? A jelenlegi játék mentése törlődik.",
+    ()=>{
+      localStorage.removeItem("splendor-prototype");
+      state=null;
+      selectedAction=null;
+      selectedColors=[];
+      setup();
+    }
+  );
+};
 
 document.getElementById(
   "saveBtn"
@@ -1203,6 +1250,14 @@ document
     };
   });
 
+window.addEventListener("click",e=>{
+  const reservedBtn=e.target.closest("[data-show-reserved]");
+  if(reservedBtn && !reservedBtn.disabled){
+    showReserved(reservedBtn.dataset.showReserved);
+    return;
+  }
+});
+
 window.addEventListener(
   "click",
   e=>{
@@ -1217,6 +1272,8 @@ window.addEventListener(
     }
   }
 );
+
+preventPullToRefresh();
 
 if(load()){
   render();
