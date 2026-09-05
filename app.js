@@ -212,14 +212,17 @@ function endTurn(){
 
   if(totalTokens(p)>10){
     showDiscard();
-    return;
+    return false;
   }
 
   claimNoble(p);
 
-  if(!state.nobleChoice){
-    checkEnd();
+  if(state.nobleChoice){
+    return false;
   }
+
+  checkEnd();
+  return true;
 }
 
 function checkEnd(){
@@ -335,9 +338,7 @@ function take3(colors){
   selectedColors=[];
   selectedAction=null;
 
-  endTurn();
-
-  if(!state.nobleChoice){
+  if(endTurn()){
     advance();
   }
 }
@@ -360,9 +361,7 @@ function take2(c){
 
   selectedAction=null;
 
-  endTurn();
-
-  if(!state.nobleChoice){
+  if(endTurn()){
     advance();
   }
 }
@@ -378,29 +377,14 @@ function reserve(card,t,hidden=false){
 
   if(hidden){
     if(!state.decks[t-1].length){
-      return toast(
-        "Ebben a pakliban már nincs kártya."
-      );
+      return toast("Ebben a pakliban már nincs kártya.");
     }
-
     card=state.decks[t-1].pop();
-
-    p.reserved.push({
-      ...card,
-      hidden:true
-    });
+    p.reserved.push({...card,hidden:true});
   }else{
-    const idx=state.market[t].findIndex(
-      x=>x.id===card.id
-    );
-
+    const idx=state.market[t].findIndex(x=>x.id===card.id);
     if(idx<0) return;
-
-    p.reserved.push({
-      ...card,
-      hidden:false
-    });
-
+    p.reserved.push({...card,hidden:false});
     state.market[t].splice(idx,1);
     refill(t);
   }
@@ -410,19 +394,10 @@ function reserve(card,t,hidden=false){
     p.tokens.gold++;
   }
 
-  log(
-    `<b>${p.name}</b> ${
-      hidden
-        ? `vakon tartalékolt egy ${t}. szintű kártyát`
-        : `tartalékolt egy ${t}. szintű kártyát`
-    }.`
-  );
+  log(`<b>${p.name}</b> ${hidden ? `vakon tartalékolt egy ${t}. szintű kártyát` : `tartalékolt egy ${t}. szintű kártyát`}.`);
 
   selectedAction=null;
-
-  endTurn();
-
-  if(!state.nobleChoice){
+  if(endTurn()){
     advance();
   }
 }
@@ -469,9 +444,7 @@ function buy(card,source,t,idx){
 
   selectedAction=null;
 
-  endTurn();
-
-  if(!state.nobleChoice){
+  if(endTurn()){
     advance();
   }
 }
@@ -764,31 +737,18 @@ function render(){
           </span>
         </div>
 
+        <div class="player-resource-summary">
+          <div class="token-summary"><span class="summary-icon token-icon">●</span><span>Zsetonok</span><b>${totalTokens(x)}</b></div>
+          <div class="card-summary"><span class="summary-icon card-icon">▭</span><span>Kártyák</span><b>${x.cards.length}</b></div>
+          <div class="noble-summary"><span class="summary-icon noble-icon">♛</span><span>Nemesek</span><b>${x.nobles.length}</b></div>
+        </div>
         <div class="mini-tokens">
-          ${
-            ALL.map(c=>`
-              <span class="mini">
-                ${pip(c,x.tokens[c])}
-              </span>
-            `).join("")
-          }
+          ${ALL.map(c=>`<span class="mini">${pip(c,x.tokens[c])}<b>${x.tokens[c]}</b></span>`).join("")}
         </div>
-
         <div class="mini-bonus">
-          ${
-            COLORS.map(c=>`
-              <span class="mini">
-                ${pip(c,bonusCount(x,c))}
-              </span>
-            `).join("")
-          }
+          ${COLORS.map(c=>`<span class="mini">${pip(c,bonusCount(x,c))}</span>`).join("")}
         </div>
-
-        <div class="reserved">
-          Tartalék: ${x.reserved.length}/3 ·
-          Kártyák: ${x.cards.length} ·
-          Nemesek: ${x.nobles.length}
-        </div>
+        <div class="reserved">Tartalék: ${x.reserved.length}/3</div>
 
       </div>
     `).join("");
@@ -826,6 +786,13 @@ function render(){
 
   if(selectedAction==="buy")
     renderBuy();
+
+  if(selectedAction){
+    const summary=document.createElement("div");
+    summary.className="action-player-summary";
+    summary.innerHTML=`<span>Aktuális készlet</span><strong>${totalTokens(p)} zseton</strong><span>·</span><strong>${p.cards.length} kártya</strong><span>·</span><strong>${p.points} pont</strong>`;
+    actionArea.prepend(summary);
+  }
 }
 
 function renderTake3(){
@@ -927,11 +894,7 @@ function renderReserve(){
   const p=state.players[state.turn];
 
   if(p.reserved.length>=3){
-    actionArea.innerHTML=`
-      <div class="note">
-        Már 3 kártyád van tartalékban.
-      </div>
-    `;
+    actionArea.innerHTML=`<div class="note">Már 3 kártyád van tartalékban.</div>`;
     return;
   }
 
@@ -939,38 +902,35 @@ function renderReserve(){
     <div class="selected-count">
       Válassz egy látható kártyát, vagy húzz vakon valamelyik pakli tetejéről.
     </div>
-
     <div class="reserve-blind">
       <div class="reserve-blind-title">🂠 Vak tartalékolás</div>
       <div class="reserve-blind-buttons">
         ${[3,2,1].map(t=>`
-          <button class="choice" data-blind-reserve="${t}"
-            ${state.decks[t-1].length===0 ? "disabled" : ""}>
-            🂠 ${t}. szint
-            <small>${state.decks[t-1].length} lap maradt</small>
+          <button class="choice" data-blind-reserve="${t}" ${state.decks[t-1].length===0?'disabled':''}>
+            🂠 ${t}. szint <small>${state.decks[t-1].length} lap maradt</small>
           </button>
-        `).join("")}
+        `).join('')}
       </div>
     </div>
-
     <div class="selected-count">Látható kártyák</div>
   `;
 
-  const wrap=document.createElement("div");
-  wrap.className="card-row";
+  const wrap=document.createElement('div');
+  wrap.className='card-row';
 
   for(const t of [3,2,1]){
     state.market[t].forEach(c=>{
-      const d=document.createElement("div");
+      const d=document.createElement('div');
       d.innerHTML=cardHtml(c);
-      d.firstChild.onclick=()=>reserve(c,t,false);
-      wrap.appendChild(d.firstChild);
+      const el=d.querySelector('.card');
+      el.onclick=()=>reserve(c,t,false);
+      wrap.appendChild(el);
     });
   }
 
   actionArea.appendChild(wrap);
 
-  document.querySelectorAll("[data-blind-reserve]").forEach(btn=>{
+  document.querySelectorAll('[data-blind-reserve]').forEach(btn=>{
     btn.onclick=()=>reserve(null,+btn.dataset.blindReserve,true);
   });
 }
@@ -995,7 +955,7 @@ function renderBuy(){
 
       d.innerHTML=cardHtml(c);
 
-      const el=d.firstChild;
+      const el=d.querySelector(".card");
 
       el.style.opacity=
         affordability(p,c)
@@ -1015,7 +975,7 @@ function renderBuy(){
 
     d.innerHTML=cardHtml(c);
 
-    const el=d.firstChild;
+    const el=d.querySelector(".card");
 
     el.style.outline=
       "2px dashed #e6b84d";
@@ -1123,21 +1083,42 @@ document.getElementById(
   render();
 };
 
-document.getElementById(
-  "newBtn"
-).onclick=()=>{
-  if(confirm("Biztosan új játékot kezdesz?")){
-    localStorage.removeItem(
-      "splendor-prototype"
-    );
+function confirmNewGame(){
+  const overlay=document.createElement("div");
+  overlay.className="app-modal-backdrop";
+  overlay.innerHTML=`
+    <div class="app-modal" role="dialog" aria-modal="true" aria-labelledby="newGameTitle">
+      <div class="app-modal-title" id="newGameTitle">Új játék</div>
+      <div class="app-modal-text">Biztosan új játékot kezdesz? A jelenlegi játék mentése törlődik.</div>
+      <div class="app-modal-actions">
+        <button type="button" class="choice" data-modal-cancel>Mégse</button>
+        <button type="button" class="primary" data-modal-confirm>Új játék</button>
+      </div>
+    </div>
+  `;
 
+  const close=()=>overlay.remove();
+
+  overlay.querySelector("[data-modal-cancel]").onclick=close;
+  overlay.querySelector("[data-modal-confirm]").onclick=()=>{
+    localStorage.removeItem("splendor-prototype");
     state=null;
     selectedAction=null;
     selectedColors=[];
-
+    close();
     setup();
-  }
+  };
+
+  overlay.addEventListener("click",e=>{
+    if(e.target===overlay) close();
+  });
+
+  document.body.appendChild(overlay);
 };
+
+document.getElementById(
+  "newBtn"
+).onclick=confirmNewGame;
 
 document.getElementById(
   "saveBtn"

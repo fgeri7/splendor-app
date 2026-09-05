@@ -65,3 +65,53 @@ label{display:block;color:var(--muted);font-size:13px;font-weight:700;margin:12p
 .reserve-blind-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .reserve-blind-buttons .choice{min-height:58px}
 .reserve-blind-buttons small{display:block;opacity:.65;margin-top:3px}
+/* --- Splendor v3.2 UX / interaction fixes --- */
+.player-resource-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:9px}.player-resource-summary>div{min-width:0;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:4px;padding:6px 7px;border:1px solid var(--line);border-radius:9px;background:#0f1929;font-size:10px}.player-resource-summary b{font-size:13px}.summary-icon{width:18px;height:14px;display:grid;place-items:center;font-size:11px;font-weight:900}.token-icon{color:var(--gold)}.card-icon{border:1px solid #91a2bd;border-radius:3px;color:#dbe4f3;font-size:12px}.noble-icon{color:#d6b1ff}.mini-tokens .mini{padding:2px 4px;border-radius:6px;background:#0f1929;border:1px solid rgba(255,255,255,.06)}.mini-tokens .mini b{font-size:10px}.action-player-summary{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:7px;margin:0 0 10px;padding:9px 12px;border:1px solid var(--gold);border-radius:11px;background:rgba(230,184,77,.08);color:var(--muted);font-size:12px}.action-player-summary strong{color:var(--text)}.card{user-select:none;-webkit-tap-highlight-color:transparent}.card:active{transform:scale(.98)}
+@media (orientation:landscape) and (min-width:700px){main{max-width:1500px;padding:8px 14px}.board{grid-template-columns:minmax(0,1fr) 320px;gap:8px 14px}.card-row{gap:6px}.card{min-height:122px}.player-resource-summary{grid-template-columns:1fr}.player-resource-summary>div{font-size:11px}.actions{grid-template-columns:230px minmax(0,1fr)}}
+
+/* --- v3.3 mobile UX --- */
+html,body,button,.card,.choice,.panel,.log-item,.bank-token,.player,.noble{
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+}
+input,select,textarea{
+  -webkit-user-select:text;
+  user-select:text;
+  -webkit-touch-callout:default;
+}
+
+.app-modal-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  background:rgba(3,8,18,.72);
+  backdrop-filter:blur(4px);
+}
+.app-modal{
+  width:min(420px,100%);
+  padding:20px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#121d31;
+  box-shadow:0 24px 70px rgba(0,0,0,.5);
+}
+.app-modal-title{
+  font-size:21px;
+  font-weight:900;
+  margin-bottom:9px;
+}
+.app-modal-text{
+  color:var(--muted);
+  line-height:1.5;
+  margin-bottom:18px;
+}
+.app-modal-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+}
+.app-modal-actions button{min-height:48px}
