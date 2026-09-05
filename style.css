@@ -24,28 +24,17 @@ label{display:block;color:var(--muted);font-size:13px;font-weight:700;margin:12p
 #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#e8b94f;color:#15120b;padding:10px 14px;border-radius:10px;font-weight:900;opacity:0;pointer-events:none;transition:.2s;z-index:50}.toast-show{opacity:1!important;transform:translateX(-50%) translateY(0)!important}
 @media(max-width:800px){#market{grid-template-columns:1fr}.card-row{grid-template-columns:repeat(4,minmax(70px,1fr))}.players{grid-template-columns:repeat(2,1fr)}.action-grid{grid-template-columns:repeat(2,1fr)}.card{min-height:145px}.setup{margin:15px auto}}
 @media(max-width:480px){main{padding:9px}.panel,.board{padding:11px;border-radius:14px}.topbar{padding:11px}.card-row{gap:5px}.card{padding:6px;min-height:126px}.card .points{font-size:20px}.cost{left:6px;right:6px;bottom:6px}.dot{width:13px;height:13px}.cost .pip{font-size:9px;padding:2px}.players{gap:6px}.player{padding:9px}.score{font-size:23px}}
-
 /* --- Splendor landscape layout --- */
 @media (orientation: landscape) and (min-width: 700px) {
   main { max-width: 1400px; padding: 10px 14px; }
   .topbar { padding: 9px 16px; }
-  .board {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 300px;
-    grid-template-areas:
-      "nobleHead noble"
-      "marketHead noble"
-      "market bank"
-      "market bank";
-    gap: 8px 12px;
-    align-items: start;
-  }
-  .board > .section-head:nth-of-type(1) { grid-area: nobleHead; }
-  .board > .nobles { grid-area: noble; }
-  .board > .section-head:nth-of-type(2) { grid-area: marketHead; }
-  .board > #market { grid-area: market; }
-  .board > .section-head:nth-of-type(3) { grid-area: bank; }
-  .board > #bank { grid-area: bank; margin-top: 30px; }
+  .board { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 8px 12px; align-items: start; }
+  .board > .section-head:nth-of-type(1) { grid-column:1 / -1; grid-row:1; }
+  .board > .nobles { grid-column:2; grid-row:2; }
+  .board > .section-head:nth-of-type(2) { grid-column:1; grid-row:2; }
+  .board > #market { grid-column:1; grid-row:3; }
+  .board > .section-head:nth-of-type(3) { grid-column:2; grid-row:3; margin-top:0; }
+  .board > #bank { grid-column:2; grid-row:4; margin-top:0; }
   .nobles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; }
   .noble { min-width: 0; }
   #market { grid-template-columns: 1fr; }
@@ -55,12 +44,7 @@ label{display:block;color:var(--muted);font-size:13px;font-weight:700;margin:12p
   .bank { justify-content: flex-start; gap: 7px; }
   .bank-token button { width: 44px; height: 44px; }
   .players { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-  .actions {
-    display: grid;
-    grid-template-columns: 220px minmax(0, 1fr);
-    gap: 12px;
-    align-items: start;
-  }
+  .actions { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 12px; align-items: start; }
   .actions > .section-head { grid-column: 1; }
   .action-grid { grid-column: 1; }
   #actionArea { grid-column: 2; grid-row: 1 / span 2; margin-top: 0; }
@@ -75,13 +59,9 @@ label{display:block;color:var(--muted);font-size:13px;font-weight:700;margin:12p
   .player { padding: 8px; }
 }
 
-/* --- Landscape board v3 correction --- */
-@media (orientation: landscape) and (min-width: 700px) {
-  .board { display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:8px 12px; align-items:start; }
-  .board > .section-head:nth-of-type(1) { grid-column:1 / -1; grid-row:1; }
-  .board > .nobles { grid-column:2; grid-row:2; }
-  .board > .section-head:nth-of-type(2) { grid-column:1; grid-row:2; }
-  .board > #market { grid-column:1; grid-row:3; }
-  .board > .section-head:nth-of-type(3) { grid-column:2; grid-row:3; margin-top:0; }
-  .board > #bank { grid-column:2; grid-row:4; margin-top:0; }
-}
+/* --- Blind reservation --- */
+.reserve-blind{margin:10px 0 14px;padding:12px;border:1px dashed rgba(230,184,77,.45);border-radius:12px;background:rgba(230,184,77,.05)}
+.reserve-blind-title{font-weight:700;margin-bottom:8px}
+.reserve-blind-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.reserve-blind-buttons .choice{min-height:58px}
+.reserve-blind-buttons small{display:block;opacity:.65;margin-top:3px}

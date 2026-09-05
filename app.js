@@ -367,7 +367,7 @@ function take2(c){
   }
 }
 
-function reserve(card,t){
+function reserve(card,t,hidden=false){
   const p=state.players[state.turn];
 
   if(p.reserved.length>=3){
@@ -376,16 +376,34 @@ function reserve(card,t){
     );
   }
 
-  const idx=state.market[t].findIndex(
-    x=>x.id===card.id
-  );
+  if(hidden){
+    if(!state.decks[t-1].length){
+      return toast(
+        "Ebben a pakliban már nincs kártya."
+      );
+    }
 
-  if(idx<0) return;
+    card=state.decks[t-1].pop();
 
-  p.reserved.push(card);
+    p.reserved.push({
+      ...card,
+      hidden:true
+    });
+  }else{
+    const idx=state.market[t].findIndex(
+      x=>x.id===card.id
+    );
 
-  state.market[t].splice(idx,1);
-  refill(t);
+    if(idx<0) return;
+
+    p.reserved.push({
+      ...card,
+      hidden:false
+    });
+
+    state.market[t].splice(idx,1);
+    refill(t);
+  }
 
   if(state.bank.gold>0){
     state.bank.gold--;
@@ -393,7 +411,11 @@ function reserve(card,t){
   }
 
   log(
-    `<b>${p.name}</b> tartalékolt egy ${t}. szintű kártyát.`
+    `<b>${p.name}</b> ${
+      hidden
+        ? `vakon tartalékolt egy ${t}. szintű kártyát`
+        : `tartalékolt egy ${t}. szintű kártyát`
+    }.`
   );
 
   selectedAction=null;
@@ -915,34 +937,42 @@ function renderReserve(){
 
   actionArea.innerHTML=`
     <div class="selected-count">
-      Válassz egy középső kártyát
-      tartalékoláshoz.
-      Az arany csak akkor jár,
-      ha még van a bankban.
+      Válassz egy látható kártyát, vagy húzz vakon valamelyik pakli tetejéről.
     </div>
+
+    <div class="reserve-blind">
+      <div class="reserve-blind-title">🂠 Vak tartalékolás</div>
+      <div class="reserve-blind-buttons">
+        ${[3,2,1].map(t=>`
+          <button class="choice" data-blind-reserve="${t}"
+            ${state.decks[t-1].length===0 ? "disabled" : ""}>
+            🂠 ${t}. szint
+            <small>${state.decks[t-1].length} lap maradt</small>
+          </button>
+        `).join("")}
+      </div>
+    </div>
+
+    <div class="selected-count">Látható kártyák</div>
   `;
 
   const wrap=document.createElement("div");
-
   wrap.className="card-row";
 
-  for(const t of [1,2,3]){
+  for(const t of [3,2,1]){
     state.market[t].forEach(c=>{
       const d=document.createElement("div");
-
       d.innerHTML=cardHtml(c);
-
-      d.firstChild.onclick=()=>{
-        reserve(c,t);
-      };
-
-      wrap.appendChild(
-        d.firstChild
-      );
+      d.firstChild.onclick=()=>reserve(c,t,false);
+      wrap.appendChild(d.firstChild);
     });
   }
 
   actionArea.appendChild(wrap);
+
+  document.querySelectorAll("[data-blind-reserve]").forEach(btn=>{
+    btn.onclick=()=>reserve(null,+btn.dataset.blindReserve,true);
+  });
 }
 
 function renderBuy(){
