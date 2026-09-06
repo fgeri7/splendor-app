@@ -303,6 +303,40 @@ function completeAction(){
   }
 }
 
+function animateTokenTransfer(playerId, colors){
+  if(!Array.isArray(colors) || !colors.length) return;
+
+  const sources=colors.map(c=>({
+    color:c,
+    el:document.querySelector(`.bank-token button[data-bank="${c}"]`)
+  })).filter(x=>x.el);
+
+  if(!sources.length) return;
+
+  setTimeout(()=>{
+    sources.forEach(({color,el},i)=>{
+      const target=document.querySelector(
+        `.mini-token[data-player-id="${playerId}"][data-color="${color}"]`
+      );
+      if(!target) return;
+
+      const from=el.getBoundingClientRect();
+      const to=target.getBoundingClientRect();
+      const ghost=el.cloneNode(true);
+      ghost.classList.add("token-flying");
+      ghost.style.left=`${from.left}px`;
+      ghost.style.top=`${from.top}px`;
+      ghost.style.width=`${from.width}px`;
+      ghost.style.height=`${from.height}px`;
+      ghost.style.setProperty("--dx", `${to.left + to.width/2 - (from.left + from.width/2)}px`);
+      ghost.style.setProperty("--dy", `${to.top + to.height/2 - (from.top + from.height/2)}px`);
+      ghost.style.animationDelay=`${i*45}ms`;
+      document.body.appendChild(ghost);
+      ghost.addEventListener("animationend",()=>ghost.remove(),{once:true});
+    });
+  },40);
+}
+
 function take3(colors){
   const p=state.players[state.turn];
 
@@ -334,6 +368,7 @@ function take3(colors){
 
   selectedColors=[];
   selectedAction=null;
+  animateTokenTransfer(p.id, colors);
 
   endTurn();
 
@@ -359,6 +394,7 @@ function take2(c){
   );
 
   selectedAction=null;
+  animateTokenTransfer(p.id, [c]);
 
   endTurn();
 
@@ -773,7 +809,7 @@ function render(){
         <div class="mini-tokens">
           ${
             ALL.map(c=>`
-              <span class="mini-token">
+              <span class="mini-token" data-player-id="${x.id}" data-color="${c}">
                 <i class="dot ${c}"></i><b>${x.tokens[c]}</b>
               </span>
             `).join("")

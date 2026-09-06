@@ -1212,3 +1212,33 @@ button:focus-visible,
     transition-duration: .01ms !important;
   }
 }
+
+
+/* v3.17 — token transfer animation. Visual only; no layout changes. */
+.token-flying{
+  position:fixed !important;
+  z-index:9999 !important;
+  margin:0 !important;
+  pointer-events:none !important;
+  transform:translate3d(0,0,0) scale(1);
+  animation:token-fly-to-player .48s cubic-bezier(.2,.8,.25,1) forwards;
+}
+
+@keyframes token-fly-to-player{
+  0%{
+    opacity:1;
+    transform:translate3d(0,0,0) scale(1);
+  }
+  20%{
+    opacity:1;
+    transform:translate3d(calc(var(--dx) * .16),calc(var(--dy) * .16 - 10px),1px) scale(1.08);
+  }
+  100%{
+    opacity:.12;
+    transform:translate3d(var(--dx),var(--dy),1px) scale(.38);
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .token-flying{animation:none!important;display:none!important}
+}
