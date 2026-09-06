@@ -792,10 +792,10 @@ function render(){
         </div>
 
         <div class="bonus-row">
-          <span class="summary-label">Kártyák</span>
+          <span class="summary-label">Bónuszok</span>
           ${
             COLORS.map(c=>`
-              <span class="mini-card-bonus mini-card-${c}" title="${LABEL[c]} kártyák: ${bonusCount(x,c)}">
+              <span class="mini-card-bonus ${c}" title="${LABEL[c]}: ${bonusCount(x,c)}">
                 <i></i><b>${bonusCount(x,c)}</b>
               </span>
             `).join("")

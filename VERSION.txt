@@ -1,2 +1,1 @@
-Splendor 3.9.2 – bank token + owned card count visual fix
-Kiindulási verzió: a jelenlegi 3.9.1-es fájlok.
+3.9.2.3
