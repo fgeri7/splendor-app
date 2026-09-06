@@ -306,35 +306,62 @@ function completeAction(){
 function animateTokenTransfer(playerId, colors){
   if(!Array.isArray(colors) || !colors.length) return;
 
-  const sources=colors.map(c=>({
-    color:c,
-    el:document.querySelector(`.bank-token button[data-bank="${c}"]`)
-  })).filter(x=>x.el);
-
-  if(!sources.length) return;
-
-  setTimeout(()=>{
-    sources.forEach(({color,el},i)=>{
-      const target=document.querySelector(
-        `.mini-token[data-player-id="${playerId}"][data-color="${color}"]`
+  // The bank and action controls are separated by scrolling, so do not
+  // attempt a long screen-to-screen flight. Give feedback where the user
+  // is interacting, then confirm the result in the player's panel.
+  colors.forEach((color,i)=>{
+    const choice = document.querySelector(
+      `#actionArea .choice[data-color="${color}"]`
+    );
+    if(choice){
+      choice.classList.remove("token-choice-picked");
+      void choice.offsetWidth;
+      choice.classList.add("token-choice-picked");
+      choice.style.animationDelay=`${i*55}ms`;
+      choice.addEventListener(
+        "animationend",
+        ()=>{
+          choice.classList.remove("token-choice-picked");
+          choice.style.animationDelay="";
+        },
+        {once:true}
       );
-      if(!target) return;
+    }
+  });
 
-      const from=el.getBoundingClientRect();
-      const to=target.getBoundingClientRect();
-      const ghost=el.cloneNode(true);
-      ghost.classList.add("token-flying");
-      ghost.style.left=`${from.left}px`;
-      ghost.style.top=`${from.top}px`;
-      ghost.style.width=`${from.width}px`;
-      ghost.style.height=`${from.height}px`;
-      ghost.style.setProperty("--dx", `${to.left + to.width/2 - (from.left + from.width/2)}px`);
-      ghost.style.setProperty("--dy", `${to.top + to.height/2 - (from.top + from.height/2)}px`);
-      ghost.style.animationDelay=`${i*45}ms`;
-      document.body.appendChild(ghost);
-      ghost.addEventListener("animationend",()=>ghost.remove(),{once:true});
+  // render()/advance() run synchronously, so the updated player panel is
+  // available on the next frame.
+  requestAnimationFrame(()=>{
+    const panel=document.querySelector(
+      `.player .mini-token[data-player-id="${playerId}"]`
+    )?.closest(".player");
+
+    if(!panel) return;
+
+    panel.classList.remove("token-gain-feedback");
+    void panel.offsetWidth;
+    panel.classList.add("token-gain-feedback");
+
+    const changed=new Set(colors);
+    panel.querySelectorAll(".mini-token").forEach(token=>{
+      if(changed.has(token.dataset.color)){
+        token.classList.remove("token-gain-pop");
+        void token.offsetWidth;
+        token.classList.add("token-gain-pop");
+        token.addEventListener(
+          "animationend",
+          ()=>token.classList.remove("token-gain-pop"),
+          {once:true}
+        );
+      }
     });
-  },40);
+
+    panel.addEventListener(
+      "animationend",
+      ()=>panel.classList.remove("token-gain-feedback"),
+      {once:true}
+    );
+  });
 }
 
 function take3(colors){
@@ -556,7 +583,8 @@ function showDiscard(){
     if(!p.tokens[c]) continue;
 
     const b=document.createElement("div");
-    b.className="choice";
+    b.className="choice token-choice";
+    b.dataset.color=c;
 
     b.innerHTML=`
       <div>
@@ -902,7 +930,8 @@ function renderTake3(){
   COLORS.forEach(c=>{
     const b=document.createElement("button");
 
-    b.className="choice";
+    b.className="choice token-choice";
+    b.dataset.color=c;
 
     b.innerHTML=`
       ${pip(c)}

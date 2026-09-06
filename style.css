@@ -1214,31 +1214,60 @@ button:focus-visible,
 }
 
 
-/* v3.17 — token transfer animation. Visual only; no layout changes. */
-.token-flying{
-  position:fixed !important;
-  z-index:9999 !important;
-  margin:0 !important;
-  pointer-events:none !important;
-  transform:translate3d(0,0,0) scale(1);
-  animation:token-fly-to-player .48s cubic-bezier(.2,.8,.25,1) forwards;
+/* v3.18 — token gain feedback. Visual only; no layout or gameplay changes. */
+/* Feedback is intentionally local to the action area and player panel.
+   The old bank-to-player flight is not used because the two areas are
+   separated by the page scroll on mobile. */
+.token-choice-picked{
+  animation:token-choice-pick .34s ease-out both !important;
 }
 
-@keyframes token-fly-to-player{
+@keyframes token-choice-pick{
   0%{
-    opacity:1;
-    transform:translate3d(0,0,0) scale(1);
+    transform:scale(1);
+    box-shadow:0 0 0 0 rgba(230,184,77,0);
+    filter:brightness(1);
   }
-  20%{
-    opacity:1;
-    transform:translate3d(calc(var(--dx) * .16),calc(var(--dy) * .16 - 10px),1px) scale(1.08);
+  45%{
+    transform:scale(1.035);
+    box-shadow:0 0 0 3px rgba(230,184,77,.28),0 0 18px rgba(230,184,77,.12);
+    filter:brightness(1.09);
   }
   100%{
-    opacity:.12;
-    transform:translate3d(var(--dx),var(--dy),1px) scale(.38);
+    transform:scale(1);
+    box-shadow:0 0 0 1px rgba(230,184,77,.55);
+    filter:brightness(1.02);
   }
+}
+
+.player.token-gain-feedback{
+  animation:token-panel-pulse .48s ease-out both !important;
+}
+
+@keyframes token-panel-pulse{
+  0%{
+    box-shadow:0 0 0 1px rgba(230,184,77,.20),0 0 0 rgba(230,184,77,0);
+  }
+  45%{
+    box-shadow:0 0 0 2px rgba(230,184,77,.72),0 0 20px rgba(230,184,77,.18);
+  }
+  100%{
+    box-shadow:0 0 0 1px rgba(230,184,77,.20),0 0 0 rgba(230,184,77,0);
+  }
+}
+
+.mini-token.token-gain-pop{
+  animation:token-mini-pop .42s cubic-bezier(.2,.8,.25,1) both;
+}
+
+@keyframes token-mini-pop{
+  0%{transform:scale(1);}
+  45%{transform:scale(1.24);}
+  100%{transform:scale(1);}
 }
 
 @media (prefers-reduced-motion:reduce){
-  .token-flying{animation:none!important;display:none!important}
+  .token-choice-picked,.player.token-gain-feedback,.mini-token.token-gain-pop{
+    animation:none!important;
+  }
 }
