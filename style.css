@@ -666,13 +666,11 @@ main,
   max-width: 100%;
 }
 
-
 /* =========================================================
-   v3.10 — SAFE SPLENDOR VISUAL FOUNDATION
-   BASE: v3.9.2.6
-   This layer changes visual atmosphere only.
+   v3.10 FINAL — SPLENDOR VISUAL FOUNDATION
+   BASE: v3.9.2.6 (last approved working foundation)
+   Player-panel layout below is kept explicitly stable.
    ========================================================= */
-
 :root{
   --spl-gold:#e6b84d;
   --spl-gold-soft:#f1cf73;
@@ -680,8 +678,6 @@ main,
   --spl-panel:#101a2a;
   --spl-panel-deep:#0b1421;
 }
-
-/* Background: richer jewel-box atmosphere. */
 body{
   background:
     radial-gradient(circle at 50% -18%, rgba(230,184,77,.13), transparent 36%),
@@ -689,108 +685,140 @@ body{
     linear-gradient(150deg,#060a11 0%,#0b1220 52%,#070c14 100%);
   background-attachment:fixed;
 }
-
-/* Header: restrained gold detailing. */
 .topbar{
   background:rgba(8,14,24,.94);
   border-bottom-color:rgba(230,184,77,.22);
   box-shadow:0 7px 24px rgba(0,0,0,.25);
 }
-
 .eyebrow{
   color:var(--spl-gold-soft);
   text-shadow:0 1px 9px rgba(230,184,77,.15);
 }
-
-/* Main containers: subtle depth, but NO layout changes. */
-.panel,
-.board{
-  background:
-    linear-gradient(145deg,rgba(19,30,48,.97),rgba(10,17,28,.97));
+.panel,.board{
+  background:linear-gradient(145deg,rgba(19,30,48,.97),rgba(10,17,28,.97));
   border-color:rgba(120,143,174,.22);
-  box-shadow:
-    0 12px 30px rgba(0,0,0,.25),
-    inset 0 1px 0 rgba(255,255,255,.025);
+  box-shadow:0 12px 30px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.025);
 }
-
-/* Section titles get the jewel-house accent. */
-.section-head{
-  border-bottom-color:rgba(150,166,190,.14);
-}
-
-.section-head h2{
-  letter-spacing:.02em;
-}
-
-/* Tier containers: visual framing only. */
+.section-head{border-bottom-color:rgba(150,166,190,.14)}
+.section-head h2{letter-spacing:.02em}
 .tier{
-  background:
-    linear-gradient(145deg,rgba(19,31,49,.72),rgba(8,15,25,.72));
+  background:linear-gradient(145deg,rgba(19,31,49,.72),rgba(8,15,25,.72));
   border-color:rgba(110,132,163,.16);
   box-shadow:0 5px 14px rgba(0,0,0,.16);
 }
-
-.tier-title{
-  color:var(--spl-gold-soft);
-}
-
-/* Noble cards: subtle premium frame, no sizing/layout changes. */
+.tier-title{color:var(--spl-gold-soft)}
 .noble{
-  background:
-    linear-gradient(145deg,rgba(27,37,56,.96),rgba(12,19,31,.96));
+  background:linear-gradient(145deg,rgba(27,37,56,.96),rgba(12,19,31,.96));
   border-color:rgba(155,128,202,.23);
   box-shadow:0 6px 14px rgba(0,0,0,.20);
 }
-
-/* Existing development cards: only surface treatment.
-   Point/cost positions and dimensions remain untouched. */
-.card{
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.10),
-    0 7px 14px rgba(0,0,0,.24);
-}
-
-.card:hover{
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.14),
-    0 9px 17px rgba(0,0,0,.30);
-}
-
-/* Turn banner: more premium without changing its structure. */
+.card{box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 7px 14px rgba(0,0,0,.24)}
+.card:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 9px 17px rgba(0,0,0,.30)}
 .turn-banner{
   background:linear-gradient(90deg,rgba(230,184,77,.10),rgba(22,43,70,.94));
   border-color:rgba(230,184,77,.24);
   box-shadow:0 5px 15px rgba(0,0,0,.18);
 }
+.action-grid button,.primary,.ghost,.danger{box-shadow:0 4px 10px rgba(0,0,0,.18)}
+.action-grid button:hover{box-shadow:0 6px 14px rgba(0,0,0,.24)}
 
-/* Buttons: subtle jewel-metal depth only. */
-.action-grid button{
-  box-shadow:0 4px 10px rgba(0,0,0,.18);
+/* =========================================================
+   APPROVED PLAYER PANEL LAYOUT — DO NOT CHANGE
+   Tokens: icon above count.
+   Cards: heading above, five upright cards in one row,
+          count directly below each card. No gold card.
+   ========================================================= */
+.player .token-summary{
+  display:block !important;
+  margin-top:8px !important;
+}
+.player .token-summary strong{display:none !important}
+.player .mini-tokens{
+  display:flex !important;
+  align-items:flex-start !important;
+  gap:8px !important;
+  flex-wrap:wrap !important;
+  margin-top:8px !important;
+}
+.player .mini-token{
+  display:inline-flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:2px !important;
+  min-width:22px !important;
+  font-size:10px !important;
+  line-height:1 !important;
+}
+.player .mini-token .dot{
+  width:22px !important;
+  height:22px !important;
+  flex:0 0 auto !important;
+}
+.player .mini-token b{
+  font-size:11px !important;
+  line-height:13px !important;
+  color:var(--text) !important;
+}
+.player .bonus-row{
+  display:block !important;
+  margin-top:10px !important;
+  color:var(--muted) !important;
+  font-size:12px !important;
+}
+.player .bonus-row > .summary-label{
+  display:block !important;
+  margin-bottom:8px !important;
+}
+.player .bonus-row > .mini-card-bonus{
+  display:inline-flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  vertical-align:top !important;
+  gap:3px !important;
+  min-width:30px !important;
+  margin:0 8px 3px 0 !important;
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+.player .bonus-row > .mini-card-bonus i{
+  display:block !important;
+  width:20px !important;
+  height:28px !important;
+  flex:0 0 auto !important;
+  border-radius:3px !important;
+  opacity:1 !important;
+  background:currentColor !important;
+  border:1px solid rgba(255,255,255,.35) !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08) !important;
+}
+.player .bonus-row > .mini-card-bonus b{
+  display:block !important;
+  margin:0 !important;
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  color:var(--text) !important;
+  font-size:11px !important;
+  line-height:13px !important;
+}
+.player .bonus-row > .mini-card-black{color:#15181d !important}
+.player .bonus-row > .mini-card-white{color:#dfe5ee !important}
+.player .bonus-row > .mini-card-red{color:#d94b4b !important}
+.player .bonus-row > .mini-card-blue{color:#347ed6 !important}
+.player .bonus-row > .mini-card-green{color:#36a866 !important}
+
+@media (max-width:480px){
+  .player .mini-tokens{gap:6px !important}
+  .player .mini-token{min-width:21px !important}
+  .player .mini-token .dot{width:20px !important;height:20px !important}
+  .player .bonus-row > .mini-card-bonus{margin-right:6px !important}
 }
 
-.action-grid button:hover{
-  box-shadow:0 6px 14px rgba(0,0,0,.24);
-}
-
-.primary,
-.ghost,
-.danger{
-  box-shadow:0 4px 10px rgba(0,0,0,.18);
-}
-
-/* Keep the existing player-panel CSS completely untouched. */
-.player,
-.player.current,
-.mini-token,
-.mini-bonus,
-.reserved{
-  /* intentionally no visual overrides here */
-}
-
-/* Respect users who prefer reduced motion. */
 @media (prefers-reduced-motion:reduce){
-  .card,
-  .action-grid button{
-    transition:none;
-  }
+  .card,.action-grid button{transition:none}
 }
