@@ -1,0 +1,107 @@
+/* v3.9.2.2 — player inventory layout, matching the approved reference.
+   Only the player token/card inventory presentation is changed. */
+
+.player .token-summary {
+  display: block !important;
+  margin-top: 8px !important;
+}
+
+.player .token-summary strong {
+  display: none !important;
+}
+
+.player .mini-tokens {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+  margin-top: 8px !important;
+}
+
+.player .mini-token {
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 2px !important;
+  min-width: 22px !important;
+  font-size: 10px !important;
+  line-height: 1 !important;
+}
+
+.player .mini-token .dot {
+  width: 22px !important;
+  height: 22px !important;
+  flex: 0 0 auto !important;
+}
+
+.player .mini-token b {
+  font-size: 11px !important;
+  line-height: 13px !important;
+  color: var(--text) !important;
+}
+
+/* Kártyák: heading on its own line, then card shapes, then counts underneath. */
+.player .bonus-row {
+  display: block !important;
+  margin-top: 10px !important;
+  color: var(--muted) !important;
+  font-size: 12px !important;
+}
+
+.player .bonus-row > .summary-label {
+  display: block !important;
+  margin-bottom: 8px !important;
+}
+
+.player .bonus-row > .mini-card-bonus {
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  vertical-align: top !important;
+  gap: 3px !important;
+  min-width: 30px !important;
+  margin: 0 8px 3px 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.player .bonus-row > .mini-card-bonus i {
+  display: block !important;
+  width: 20px !important;
+  height: 28px !important;
+  flex: 0 0 auto !important;
+  border-radius: 3px !important;
+  opacity: 1 !important;
+  background: currentColor !important;
+  border: 1px solid rgba(255,255,255,.35) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08) !important;
+}
+
+.player .bonus-row > .mini-card-bonus b {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: var(--text) !important;
+  font-size: 11px !important;
+  line-height: 13px !important;
+}
+
+.player .bonus-row > .mini-card-black { color: #15181d !important; }
+.player .bonus-row > .mini-card-white { color: #dfe5ee !important; }
+.player .bonus-row > .mini-card-red { color: #d94b4b !important; }
+.player .bonus-row > .mini-card-blue { color: #347ed6 !important; }
+.player .bonus-row > .mini-card-green { color: #36a866 !important; }
+
+@media (max-width: 480px) {
+  .player .mini-tokens { gap: 6px !important; }
+  .player .mini-token { min-width: 21px !important; }
+  .player .mini-token .dot { width: 20px !important; height: 20px !important; }
+  .player .bonus-row > .mini-card-bonus { margin-right: 6px !important; }
+}
