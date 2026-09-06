@@ -384,3 +384,135 @@ main {
 }
 .bank-token-mark{display:block;position:relative;z-index:1;font-size:18px;line-height:1}
 .bank-token-mark.white{color:#20242c}.bank-token-mark.gold{color:#fff}
+
+/* =========================================================
+   v3.9 — Splendor visual foundation
+   ========================================================= */
+:root{
+  --spl-gold:#e9bf55;
+  --spl-gold-soft:#f4d98b;
+  --spl-surface:rgba(19,29,47,.96);
+  --spl-surface-2:#17243a;
+  --spl-line:rgba(157,180,215,.18);
+}
+
+/* A little more "tabletop" depth without adding external assets. */
+.panel,.board,.player,.noble{
+  box-shadow:0 10px 26px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.025);
+}
+
+/* Cards: points and cost have their own visual zones so they never fight for space. */
+.card{
+  isolation:isolate;
+  background-image:linear-gradient(145deg,rgba(255,255,255,.08),transparent 32%),var(--card-bg,linear-gradient(160deg,#22324e,#111a2b));
+  box-shadow:0 5px 12px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.13);
+  transform-origin:center bottom;
+  will-change:transform;
+}
+.card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(120deg,rgba(255,255,255,.10),transparent 28%,transparent 72%,rgba(0,0,0,.12));
+  opacity:.55;
+}
+.card .points{
+  position:relative;
+  z-index:3;
+  display:grid;
+  place-items:center;
+  width:38px;
+  height:38px;
+  border-radius:11px;
+  background:rgba(5,10,18,.28);
+  border:1px solid rgba(255,255,255,.16);
+  text-shadow:0 2px 4px rgba(0,0,0,.35);
+}
+.card.white .points{background:rgba(255,255,255,.35);border-color:rgba(0,0,0,.12);text-shadow:none}
+.card .bonus{z-index:3}
+.card .bonus .dot{width:19px;height:19px;box-shadow:0 0 0 2px rgba(255,255,255,.12),inset 0 2px 4px rgba(255,255,255,.25),0 2px 5px rgba(0,0,0,.25)}
+.card .cost{
+  z-index:3;
+  margin-top:auto;
+  padding:6px;
+  border-radius:9px;
+  background:rgba(4,9,16,.34);
+  border:1px solid rgba(255,255,255,.10);
+  backdrop-filter:blur(4px);
+  box-shadow:0 3px 8px rgba(0,0,0,.14);
+}
+.card.white .cost{background:rgba(255,255,255,.28);border-color:rgba(0,0,0,.10)}
+.card .cost .pip{font-weight:850;line-height:1}
+.card .cost .dot{box-shadow:inset 0 1px 3px rgba(0,0,0,.42),0 0 0 1px rgba(255,255,255,.15)}
+
+/* Subtle physical-card interaction. */
+.card:hover{transform:translateY(-3px) rotateX(1deg);box-shadow:0 9px 18px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.16)}
+.card:active{transform:translateY(1px) scale(.985);transition-duration:.06s}
+.card.selected{animation:cardSelected .55s ease-out}
+@keyframes cardSelected{0%{box-shadow:0 0 0 0 rgba(233,191,85,0)}45%{box-shadow:0 0 0 5px rgba(233,191,85,.16)}100%{box-shadow:0 0 0 2px rgba(233,191,85,.55)}}
+
+/* Tokens should look like little physical chips. */
+.bank-token button{
+  box-shadow:inset 0 3px 7px rgba(255,255,255,.18),inset 0 -4px 8px rgba(0,0,0,.24),0 6px 11px rgba(0,0,0,.28);
+  transition:transform .14s ease,filter .14s ease;
+}
+.bank-token button:hover{transform:translateY(-2px) scale(1.035);filter:brightness(1.06)}
+.bank-token button:active{transform:translateY(1px) scale(.97)}
+.bank-token button::before{
+  content:"";
+  position:absolute;
+  left:17%;top:12%;width:32%;height:18%;
+  border-radius:50%;
+  background:rgba(255,255,255,.22);
+  filter:blur(2px);
+  pointer-events:none;
+}
+
+/* Player card counter: only the card icon carries the visual card treatment. */
+.owned-card-label{display:inline-flex;align-items:center;gap:6px}
+.owned-card-label .card-count-icon{
+  background:linear-gradient(145deg,#6fa8e8,#214b79);
+  border-color:#a7c9ec;
+  box-shadow:3px 3px 0 rgba(111,168,232,.18),inset 0 2px 4px rgba(255,255,255,.16);
+}
+.owned-card-label .card-count-icon::before{background:linear-gradient(145deg,#416d9f,#18324f)}
+.owned-card-label b{font-size:13px!important;color:var(--text)!important}
+
+/* Keep the game a single vertical document in landscape. */
+@media (orientation:landscape) and (min-width:700px){
+  html,body{overflow-x:hidden!important;overflow-y:auto!important;height:auto!important;min-height:100%!important}
+  body{touch-action:pan-y!important}
+  #gameView{height:auto!important;min-height:0!important;overflow:visible!important}
+  main{height:auto!important;overflow:visible!important}
+  .board{height:auto!important;overflow:visible!important}
+  #market{height:auto!important;overflow:visible!important}
+  .tier{height:auto!important;overflow:visible!important}
+  .card-row{height:auto!important;overflow:visible!important}
+
+  /* Compact but readable card proportions: four cards fit comfortably without a second axis scroll. */
+  .card-row{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .card{height:124px;min-height:124px;padding:7px}
+  .card .points{width:34px;height:34px;border-radius:9px;font-size:22px}
+  .card .cost{gap:3px;padding:5px}
+  .card .cost .pip{font-size:9px;padding:2px 3px}
+  .card .cost .dot{width:12px;height:12px}
+
+  /* Reduce dead space between the three tiers. */
+  .tier-title{margin:2px 0 3px}
+  #market{gap:5px}
+  .tier{margin-bottom:0}
+}
+
+@media (orientation:landscape) and (min-width:700px) and (max-height:500px){
+  .card{height:108px;min-height:108px;padding:6px}
+  .card .points{width:30px;height:30px;font-size:19px}
+  .card .bonus .dot{width:16px;height:16px}
+  .card .cost{padding:4px}
+  .card .cost .pip{font-size:8px}
+  .card .cost .dot{width:11px;height:11px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .card,.bank-token button,.card.selected{animation:none!important;transition:none!important}
+}
