@@ -903,3 +903,88 @@ body{
 .bank-token button.green{background:radial-gradient(circle at 34% 27%,#83edaa 0%,#36a866 43%,#195e3c 100%) !important}
 .bank-token button.gold{background:radial-gradient(circle at 34% 27%,#fff09c 0%,#e3b342 43%,#916b18 100%) !important}
 .bank-token button:active{box-shadow:inset 2px 3px 6px rgba(0,0,0,.28),0 2px 5px rgba(0,0,0,.24)!important}
+
+/* =========================================================
+   v3.12 — DEVELOPMENT CARD VISUALS
+   Only the market card surface is enhanced.
+   Layout, dimensions, point/cost zones and interaction stay intact.
+   ========================================================= */
+.card{
+  border-width:1px;
+  border-color:rgba(255,255,255,.18) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    inset 0 -12px 24px rgba(0,0,0,.10),
+    0 7px 15px rgba(0,0,0,.28) !important;
+}
+
+.card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 78% 18%,rgba(255,255,255,.14),transparent 22%),
+    linear-gradient(135deg,rgba(255,255,255,.09),transparent 30%);
+  opacity:.9;
+}
+
+.card.black{
+  background:
+    radial-gradient(circle at 72% 15%,rgba(126,142,160,.20),transparent 26%),
+    linear-gradient(155deg,#303a46 0%,#151c25 48%,#0b1017 100%) !important;
+}
+.card.white{
+  background:
+    radial-gradient(circle at 72% 15%,rgba(255,255,255,.65),transparent 25%),
+    linear-gradient(155deg,#f1f3f6 0%,#d3dae3 48%,#a3afbe 100%) !important;
+}
+.card.red{
+  background:
+    radial-gradient(circle at 72% 15%,rgba(255,190,190,.25),transparent 25%),
+    linear-gradient(155deg,#a64249 0%,#652a31 50%,#35181e 100%) !important;
+}
+.card.blue{
+  background:
+    radial-gradient(circle at 72% 15%,rgba(180,220,255,.22),transparent 25%),
+    linear-gradient(155deg,#326da8 0%,#24517f 50%,#162e4d 100%) !important;
+}
+.card.green{
+  background:
+    radial-gradient(circle at 72% 15%,rgba(190,255,214,.20),transparent 25%),
+    linear-gradient(155deg,#2e815a 0%,#216144 50%,#133c2a 100%) !important;
+}
+
+.card .points{
+  position:relative;
+  z-index:2;
+  text-shadow:0 2px 5px rgba(0,0,0,.38);
+}
+.card.white .points{
+  text-shadow:0 1px 2px rgba(255,255,255,.65);
+}
+
+.card .bonus{z-index:3}
+.card .bonus .dot{
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.13),
+    inset 0 2px 4px rgba(255,255,255,.25),
+    0 3px 6px rgba(0,0,0,.30) !important;
+}
+
+.card .cost{
+  z-index:3;
+}
+.card .cost .pip{
+  box-shadow:
+    inset 0 1px 2px rgba(255,255,255,.08),
+    0 2px 4px rgba(0,0,0,.18);
+}
+
+.card:hover{
+  transform:translateY(-3px) !important;
+  filter:brightness(1.04);
+}
+.card:active{
+  transform:translateY(1px) scale(.985) !important;
+}
