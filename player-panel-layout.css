@@ -41,12 +41,14 @@
   color: var(--text) !important;
 }
 
-/* Kártyák: heading on its own line, then card shapes, then counts underneath. */
+/* Kártyák: heading on its own line, then all five cards in ONE row,
+   with each count directly underneath its card. */
 .player .bonus-row {
   display: block !important;
   margin-top: 10px !important;
   color: var(--muted) !important;
   font-size: 12px !important;
+  width: 100% !important;
 }
 
 .player .bonus-row > .summary-label {
@@ -61,8 +63,9 @@
   justify-content: flex-start !important;
   vertical-align: top !important;
   gap: 3px !important;
-  min-width: 30px !important;
-  margin: 0 8px 3px 0 !important;
+  width: 28px !important;
+  min-width: 28px !important;
+  margin: 0 5px 3px 0 !important;
   padding: 0 !important;
   background: transparent !important;
   border: 0 !important;
@@ -103,5 +106,13 @@
   .player .mini-tokens { gap: 6px !important; }
   .player .mini-token { min-width: 21px !important; }
   .player .mini-token .dot { width: 20px !important; height: 20px !important; }
-  .player .bonus-row > .mini-card-bonus { margin-right: 6px !important; }
+  .player .bonus-row > .mini-card-bonus {
+    width: 26px !important;
+    min-width: 26px !important;
+    margin-right: 3px !important;
+  }
+  .player .bonus-row > .mini-card-bonus i {
+    width: 18px !important;
+    height: 26px !important;
+  }
 }
