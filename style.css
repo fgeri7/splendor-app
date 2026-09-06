@@ -516,3 +516,26 @@ main {
 @media (prefers-reduced-motion:reduce){
   .card,.bank-token button,.card.selected{animation:none!important;transition:none!important}
 }
+
+
+/* --- v3.9.1: native page scrolling / no pull-to-refresh --- */
+html {
+  min-height: 100%;
+  height: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: none !important;
+}
+body {
+  min-height: 100vh;
+  height: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+  overscroll-behavior-y: none !important;
+  touch-action: pan-y !important;
+}
+#gameView {
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}

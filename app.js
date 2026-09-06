@@ -1097,20 +1097,11 @@ function showConfirm(title,message,onConfirm){
 }
 
 function preventPullToRefresh(){
+  // Do not intercept touchmove: that can accidentally disable the page scroll.
+  // Pull-to-refresh is disabled by CSS overscroll-behavior instead, while
+  // normal vertical scrolling remains native.
   document.documentElement.style.overscrollBehaviorY="none";
   document.body.style.overscrollBehaviorY="none";
-  let startY=0;
-  document.addEventListener("touchstart",e=>{
-    if(e.touches.length===1) startY=e.touches[0].clientY;
-  },{passive:true});
-  document.addEventListener("touchmove",e=>{
-    if(e.touches.length!==1) return;
-    const dy=e.touches[0].clientY-startY;
-    const scroller=e.target.closest("#log,.nobles,.card-row,#actionArea");
-    if(window.scrollY<=0 && dy>0 && !scroller){
-      e.preventDefault();
-    }
-  },{passive:false});
 }
 
 function setup(){
