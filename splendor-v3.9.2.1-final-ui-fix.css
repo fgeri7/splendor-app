@@ -1,0 +1,66 @@
+
+/* =========================================================
+   v3.9.2.1 — FINAL TOKEN/BONUS BACKGROUND FIX
+   IMPORTANT: append this AFTER all existing style.css rules.
+   Does not alter scrolling or layout.
+   ========================================================= */
+
+/* 1) The color class is also present on the icon INSIDE the bank
+      token. The generic .black/.white/.red/... rules were painting
+      that child as a rectangular block. The physical button itself
+      already provides the token color. */
+.bank-token button > .bank-token-mark {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+}
+
+/* Keep the icon color only where it is actually needed. */
+.bank-token-mark.black { color:#fff !important; }
+.bank-token-mark.white { color:#20242c !important; }
+.bank-token-mark.red   { color:#fff !important; }
+.bank-token-mark.blue  { color:#fff !important; }
+.bank-token-mark.green { color:#fff !important; }
+.bank-token-mark.gold  { color:#fff !important; }
+
+/* 2) Bonus counters: the color class is on the WHOLE
+      .mini-card-bonus element, so the generic color classes were
+      painting a rectangle behind both icon AND number.
+      Only <i> is supposed to be the colored card icon. */
+.mini-card-bonus.black,
+.mini-card-bonus.white,
+.mini-card-bonus.red,
+.mini-card-bonus.blue,
+.mini-card-bonus.green,
+.mini-card-bonus.gold {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* The number itself is plain text. */
+.mini-card-bonus > b {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  color: var(--text) !important;
+}
+
+/* Only the miniature card pictogram gets the bonus color. */
+.mini-card-bonus > i {
+  background: currentColor !important;
+  display: inline-block !important;
+  flex: 0 0 auto;
+}

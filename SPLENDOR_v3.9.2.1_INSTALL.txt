@@ -1,0 +1,34 @@
+SPLENDOR v3.9.2.1 – végleges UI javítás
+
+A képernyőkép alapján az előző javításból kimaradt egy fontos rész:
+az app.js ugyanazt a színnevet osztályként ráteszi a belső ikonokra is.
+
+Ezért:
+- a zsetonon lévő .bank-token-mark kapott egy téglalap alakú .black/.white/.red/etc. hátteret;
+- a Bónuszok sorban a .mini-card-bonus teljes eleme kapott színes hátteret,
+  pedig csak a benne lévő kis kártyaikon (<i>) lehet színes.
+
+Ez a javítás pontosan ezeket tiltja le.
+
+FONTOS:
+1. A meglévő, működő style.css maradjon változatlan.
+2. A ZIP-ben lévő splendor-v3.9.2.1-final-ui-fix.css tartalmát másold a
+   style.css LEGVÉGÉRE.
+3. A ZIP-ben lévő sw-v3.9.2.1.js fájlt nevezd át sw.js-re és cseréld le
+   vele a jelenlegi sw.js-t.
+4. app.js-hez most NEM nyúlunk.
+5. A scrollozáshoz és a landscape layouthez sem nyúlunk.
+
+A service worker verziószámát szándékosan 3.9.2.1-re emeltem, hogy az új CSS
+ne maradjon bent a régi cache-ben.
+
+A kívánt eredmény:
+
+Zsetonbank:
+  [  ●  ]     <- csak a zseton maga színes
+  Ónix · 3
+
+Bónusz:
+  Bónuszok  [▯] 0  [▯] 1  [▯] 0 ...
+
+Tehát a szám mögött SEMMILYEN színes téglalap nem marad.
