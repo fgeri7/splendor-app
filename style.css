@@ -1013,3 +1013,95 @@ body{
   margin-top:auto !important;
   flex:0 0 auto !important;
 }
+
+/* =========================================================
+   v3.15 — SPLENDOR NOBLE CARDS
+   Visual-only refinement of the noble section.
+   Player panels, development cards, tokens and scrolling are untouched.
+   ========================================================= */
+.nobles .noble{
+  position:relative;
+  overflow:hidden;
+  min-height:92px;
+  padding:14px 15px 13px;
+  border:1px solid rgba(196,169,228,.28);
+  border-radius:16px;
+  background:
+    radial-gradient(circle at 88% 12%,rgba(217,168,255,.10),transparent 34%),
+    linear-gradient(145deg,#1b263c 0%,#111a2a 58%,#0c1523 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.055),
+    inset 0 -18px 28px rgba(0,0,0,.10),
+    0 7px 16px rgba(0,0,0,.22);
+}
+.nobles .noble::before{
+  content:"♛";
+  position:absolute;
+  right:12px;
+  top:7px;
+  font-size:27px;
+  line-height:1;
+  color:rgba(217,168,255,.12);
+  pointer-events:none;
+}
+.nobles .noble::after{
+  content:"";
+  position:absolute;
+  left:15px;
+  right:15px;
+  bottom:7px;
+  height:1px;
+  background:linear-gradient(90deg,rgba(230,184,77,.18),transparent 75%);
+  pointer-events:none;
+}
+.nobles .noble-title{
+  position:relative;
+  z-index:1;
+  padding-right:28px;
+  color:#f1f4fb;
+  font-size:15px;
+  font-weight:900;
+  letter-spacing:.01em;
+}
+.nobles .req{
+  position:relative;
+  z-index:1;
+  margin-top:12px;
+  gap:7px;
+}
+.nobles .req .pip{
+  min-height:23px;
+  padding:3px 7px 3px 4px;
+  border-radius:8px;
+  background:rgba(7,12,20,.34);
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+  font-size:11px;
+  font-weight:800;
+}
+.nobles .req .dot{
+  width:16px;
+  height:16px;
+}
+.nobles .noble small{
+  position:relative;
+  z-index:1;
+  display:block;
+  margin-top:7px;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:700;
+}
+.nobles .noble.claimed{
+  opacity:.42;
+  filter:saturate(.7);
+}
+@media(max-width:480px){
+  .nobles .noble{
+    min-height:88px;
+    padding:12px 13px 11px;
+  }
+  .nobles .noble-title{font-size:14px}
+  .nobles .req{margin-top:10px;gap:5px}
+  .nobles .req .pip{font-size:10px;padding:3px 6px 3px 4px}
+}
