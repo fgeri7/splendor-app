@@ -1,1 +1,2 @@
-v3.10.1
+Splendor v3.10.2 — visual overhaul, based on v3.10.1_player_inventory_fix
+Stable gameplay/UI baseline preserved; visual-only enhancements applied.
