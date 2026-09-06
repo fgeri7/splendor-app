@@ -1,4 +1,4 @@
-const CACHE_NAME = 'splendor-digital-v3.9.2.4';
+const CACHE_NAME = 'splendor-digital-v3.9.2.5';
 const APP_SHELL = ['./', './app.js', './style.css'];
 
 self.addEventListener('install', (event) => {
@@ -24,11 +24,8 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
-  const isShell =
-    url.pathname.endsWith('/app.js') ||
-    url.pathname.endsWith('/style.css') ||
-    url.pathname.endsWith('/');
-
+  // App shell: network first so GitHub Pages updates are picked up quickly.
+  const isShell = url.pathname.endsWith('/app.js') || url.pathname.endsWith('/style.css') || url.pathname.endsWith('/');
   if (isShell) {
     event.respondWith(
       fetch(event.request).then((response) => {

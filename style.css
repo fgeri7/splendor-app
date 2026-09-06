@@ -66,24 +66,602 @@ label{display:block;color:var(--muted);font-size:13px;font-weight:700;margin:12p
 .reserve-blind-buttons .choice{min-height:58px}
 .reserve-blind-buttons small{display:block;opacity:.65;margin-top:3px}
 
-/* v3.9.2.4 — preserve the tested scroll/card layout while fixing bank token marks. */
-html{height:100%!important;min-height:100%!important;overflow:hidden!important}
-body{height:100dvh!important;min-height:0!important;overflow:hidden!important;margin:0!important;overscroll-behavior:none!important;touch-action:none!important}
-#app{height:100dvh!important;min-height:0!important;max-height:none!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior-y:none!important;overscroll-behavior-x:none!important;touch-action:pan-y!important}
-main,#gameView,.board,#market,.tier,.card-row,#players,.actions,#actionArea{overflow:visible!important;max-height:none!important}
 
-/* Keep card points and costs in separate zones so the cost cannot cover the score. */
-.card{display:flex!important;flex-direction:column!important;position:relative!important;overflow:hidden!important}
-.card .points{position:relative!important;z-index:5!important;flex:0 0 38px!important;width:38px!important;height:38px!important}
-.card .bonus{z-index:5!important}
-.card .cost{position:relative!important;z-index:4!important;left:auto!important;right:auto!important;bottom:auto!important;margin-top:auto!important;max-width:100%!important;max-height:calc(100% - 46px)!important;overflow:hidden!important;flex:0 1 auto!important}
-@media (orientation:landscape) and (min-width:700px){.card .points{flex-basis:34px!important;width:34px!important;height:34px!important}.card .cost{max-height:calc(100% - 42px)!important}}
-@media (orientation:landscape) and (min-width:700px) and (max-height:500px){.card .points{flex-basis:30px!important;width:30px!important;height:30px!important}.card .cost{max-height:calc(100% - 38px)!important}}
+/* --- v3.5 player panel cleanup --- */
+html,body{overscroll-behavior-y:none}
+body{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+input,select,textarea{ -webkit-user-select:text; user-select:text; -webkit-touch-callout:default }
+.player{min-width:0}
+.token-summary{display:flex;align-items:baseline;gap:7px;margin-top:7px;color:var(--muted);font-size:12px}
+.token-summary strong{font-size:20px;color:var(--text);line-height:1}
+.summary-label{font-weight:800}
+.mini-tokens{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.mini-token{display:inline-flex;align-items:center;gap:3px;font-size:11px;min-width:24px}
+.mini-token .dot{width:15px;height:15px;flex:0 0 auto}
+.mini-token b{font-size:11px}
+.ownership-row{display:flex;align-items:center;gap:10px;margin-top:9px;padding-top:8px;border-top:1px solid rgba(255,255,255,.07)}
+.owned-stat{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:11px}
+.owned-stat b{color:var(--text);font-size:13px}
+.card-count-icon{width:17px;height:22px;border:2px solid #aebbd0;border-radius:3px;display:inline-block;position:relative;background:#1b2940;box-shadow:2px 2px 0 rgba(174,187,208,.22)}
+.card-count-icon:after{content:"";position:absolute;inset:3px;border:1px solid rgba(255,255,255,.18);border-radius:1px}
+.noble-count-icon{width:18px;text-align:center;color:#d9a8ff;font-size:19px;line-height:22px}
+.bonus-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:7px;color:var(--muted);font-size:10px}
+.mini-card-bonus{display:inline-flex;align-items:center;gap:3px}
+.mini-card-bonus i{display:inline-block;width:10px;height:14px;border:1px solid rgba(255,255,255,.45);border-radius:2px;background:currentColor;opacity:.85}
+.mini-card-bonus b{font-size:10px;color:var(--text)}
+.mini-card-bonus.black{color:#8d98a8;background:transparent}.mini-card-bonus.white{color:#dfe5ee;background:transparent}.mini-card-bonus.red{color:#d94b4b;background:transparent}.mini-card-bonus.blue{color:#347ed6;background:transparent}.mini-card-bonus.green{color:#36a866;background:transparent}
+/* Player inventory: cards are represented only by upright colored card shapes; the count stays unboxed. */
+.mini-card-bonus{background:transparent !important;border-radius:0 !important;padding:0 !important}
+.mini-card-black{color:#8d98a8}.mini-card-white{color:#dfe5ee}.mini-card-red{color:#d94b4b}.mini-card-blue{color:#347ed6}.mini-card-green{color:#36a866}
+.mini-card-bonus i{width:14px;height:20px;border-radius:2px;opacity:1;background:currentColor !important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}
+.mini-card-bonus b{background:transparent !important;color:var(--text);padding:0 !important;line-height:20px}
 
-/* Only the inner bank mark is transparent; the round button remains the token. */
-.bank-token button > .bank-token-mark{background:transparent!important;background-color:transparent!important;background-image:none!important;box-shadow:none!important;border:0!important;padding:0!important;width:auto!important;height:auto!important;border-radius:0!important}
-.bank-token-mark.black{color:#fff!important}.bank-token-mark.white{color:#20242c!important}.bank-token-mark.red,.bank-token-mark.blue,.bank-token-mark.green,.bank-token-mark.gold{color:#fff!important}
+.reserved-summary{display:block;width:100%;margin-top:8px;padding:7px 8px;border-radius:9px;border:1px solid rgba(230,184,77,.25);background:rgba(230,184,77,.05);color:var(--muted);text-align:left;font-size:11px;font-weight:800}
+.reserved-summary.can-open{color:var(--gold);cursor:pointer}
+.reserved-summary:disabled{opacity:1;cursor:default}
+.app-modal-backdrop{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:18px;background:rgba(4,8,16,.72);backdrop-filter:blur(8px)}
+.app-modal{width:min(720px,100%);max-height:min(88vh,760px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 25px 70px rgba(0,0,0,.45)}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+.modal-head h3{margin:0;font-size:19px}.modal-eyebrow{font-size:10px;letter-spacing:1.5px;color:var(--gold);font-weight:900;margin-bottom:3px}
+.modal-close{width:38px;height:38px;border-radius:10px;background:#17243a;color:var(--text);font-size:24px;line-height:1}
+.reserved-modal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px}
+.reserved-modal-grid .card{min-height:155px}
+.modal-empty{padding:30px 10px;text-align:center;color:var(--muted)}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:15px}.modal-actions button{min-width:100px}
+.confirm-modal p{color:var(--muted);line-height:1.5;margin:0}
+.modal-close-action{margin-top:12px}
+@media(max-width:480px){.ownership-row{gap:8px}.owned-stat{font-size:10px}.bonus-row{gap:4px}.reserved-summary{font-size:10px}.app-modal-backdrop{padding:10px}.app-modal{padding:13px}.reserved-modal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reserved-modal-grid .card{min-height:140px}}
 
-/* The bonus/card count numbers stay unboxed. */
-.mini-card-bonus,.mini-card-bonus.black,.mini-card-bonus.white,.mini-card-bonus.red,.mini-card-bonus.blue,.mini-card-bonus.green{background:transparent!important;background-color:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}
-.mini-card-bonus > b{background:transparent!important;background-color:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}
+/* --- v3.6 landscape-first compact board --- */
+@media (orientation: landscape) and (min-width: 700px) {
+  html, body { width:100%; max-width:100%; overflow-x:hidden; }
+  .topbar { width:100%; }
+  main { width:100%; max-width:none; padding:8px 10px; }
+  .board { 
+    width:100%;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(230px,260px);
+    grid-template-areas:
+      "marketHead side"
+      "market side";
+    gap:8px 10px;
+    padding:10px;
+  }
+  .board > .section-head:nth-of-type(1) { display:none; }
+  .board > .nobles { grid-area:side; display:grid; grid-template-columns:1fr; gap:6px; overflow:visible; }
+  .board > .section-head:nth-of-type(2) { grid-area:marketHead; margin:0; }
+  .board > #market { grid-area:market; display:grid; grid-template-columns:1fr; gap:6px; min-width:0; }
+  .board > .section-head:nth-of-type(3), .board > #bank { display:none; }
+  .noble { min-width:0; padding:8px; border-radius:11px; }
+  .noble-title { font-size:13px; }
+  .req { gap:4px; margin-top:5px; }
+  .req .pip { font-size:10px; }
+  .tier { margin:0; min-width:0; }
+  .tier-title { font-size:10px; margin-bottom:4px; }
+  .card-row { grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; min-width:0; }
+  .card { 
+    min-width:0;
+    min-height:132px;
+    height:132px;
+    padding:7px;
+    border-radius:11px;
+    display:flex;
+    flex-direction:column;
+  }
+  .card .points { position:relative; z-index:2; font-size:24px; line-height:1; }
+  .bonus { right:7px; top:7px; }
+  .cost { position:static; left:auto; right:auto; bottom:auto; margin-top:auto; display:flex; flex-wrap:wrap; gap:3px; align-content:flex-end; }
+  .cost .pip { font-size:10px; padding:2px 4px; border-radius:6px; }
+  .cost .dot { width:13px; height:13px; }
+  .players { grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; margin-bottom:8px; }
+  .player { padding:8px; }
+  .score { font-size:22px; }
+  .token-summary { margin-top:5px; }
+  .mini-tokens { gap:4px; margin-top:5px; }
+  .mini-token { font-size:10px; }
+  .ownership-row { margin-top:6px; padding-top:6px; }
+  .bonus-row { margin-top:5px; }
+  .reserved-summary { margin-top:6px; padding:6px 7px; }
+  .actions { display:grid; grid-template-columns:210px minmax(0,1fr); gap:8px; }
+  .actions > .section-head { grid-column:1; }
+  .action-grid { grid-column:1; }
+  #actionArea { grid-column:2; grid-row:1 / span 2; margin-top:0; min-width:0; }
+  #actionArea .card-row { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .log-panel { max-height:150px; }
+}
+
+@media (orientation: landscape) and (min-width: 700px) and (max-height: 500px) {
+  .topbar { padding:7px 12px; }
+  h1 { font-size:21px; }
+  main { padding:6px 8px; }
+  .board { padding:8px; grid-template-columns:minmax(0,1fr) 220px; gap:6px 8px; }
+  .card { min-height:116px; height:116px; padding:6px; }
+  .card .points { font-size:21px; }
+  .cost .pip { font-size:9px; padding:2px 3px; }
+  .cost .dot { width:12px; height:12px; }
+  .noble { padding:6px; }
+  .noble-title { font-size:12px; }
+  .players { gap:5px; }
+  .player { padding:7px; }
+  .score { font-size:20px; }
+  .ownership-row { gap:6px; }
+}
+
+
+/* --- v3.7 landscape scrolling + visual polish --- */
+html, body {
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+body {
+  touch-action: pan-y;
+}
+main, .board, #gameView {
+  min-width: 0;
+  overflow: visible;
+}
+
+/* Bank: the physical token itself carries the color; label stays secondary. */
+.bank-token button.black {
+  background: radial-gradient(circle at 35% 30%, #4a515d 0%, #242932 45%, #11151b 100%);
+  color: #fff;
+}
+.bank-token button.white {
+  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #e3e8f0 55%, #aeb8c7 100%);
+  color: #20242c;
+}
+.bank-token button.red {
+  background: radial-gradient(circle at 35% 30%, #f06a6a 0%, #d94b4b 55%, #8f252c 100%);
+  color: #fff;
+}
+.bank-token button.blue {
+  background: radial-gradient(circle at 35% 30%, #5ca0ef 0%, #347ed6 55%, #1c4b88 100%);
+  color: #fff;
+}
+.bank-token button.green {
+  background: radial-gradient(circle at 35% 30%, #5ed18a 0%, #36a866 55%, #1c6943 100%);
+  color: #fff;
+}
+.bank-token button.gold {
+  background: radial-gradient(circle at 35% 30%, #ffe27a 0%, #e3b342 55%, #956f18 100%);
+  color: #fff;
+}
+.bank-token small {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.bank-token small::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.35);
+}
+.bank-token:nth-child(1) small::before { background:#303640; }
+.bank-token:nth-child(2) small::before { background:#e9edf4; }
+.bank-token:nth-child(3) small::before { background:#d94b4b; }
+.bank-token:nth-child(4) small::before { background:#347ed6; }
+.bank-token:nth-child(5) small::before { background:#36a866; }
+.bank-token:nth-child(6) small::before { background:#e3b342; }
+
+/* Owned-card count: only the card pictogram has a colored treatment; the number/text is plain. */
+.card-count-icon {
+  background: linear-gradient(145deg, #4b88c9, #24527f);
+  border-color: #8bb7e5;
+  box-shadow: 2px 2px 0 rgba(139,183,229,.22);
+}
+.card-count-icon:after {
+  border-color: rgba(255,255,255,.55);
+}
+.owned-stat b {
+  background: none !important;
+  padding: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Ensure the complete market remains reachable vertically in landscape. */
+@media (orientation: landscape) and (min-width: 700px) {
+  #gameView, .board, #market, .tier, .card-row {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+  #market {
+    min-height: 0;
+  }
+  .board {
+    align-content: start;
+  }
+  .card-row {
+    min-height: 0;
+  }
+}
+
+@media (orientation: landscape) and (min-width: 700px) and (max-height: 500px) {
+  .board { padding-bottom: 16px; }
+}
+
+/* --- v3.8 full-page landscape scroll architecture --- */
+html, body {
+  height: auto;
+  min-height: 100%;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: none;
+}
+body {
+  touch-action: pan-y !important;
+}
+#gameView, #gameView > * {
+  height: auto !important;
+  max-height: none !important;
+}
+main {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+.board {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  align-content: start;
+}
+#market, .tier, .card-row, .players, .actions, #actionArea, .log-panel {
+  max-height: none !important;
+  overflow: visible !important;
+}
+.card-row {
+  width: 100%;
+}
+
+/* Landscape: keep the whole game as one vertical document. */
+@media (orientation: landscape) and (min-width: 700px) {
+  .board {
+    grid-template-rows: auto;
+  }
+  #market {
+    min-height: 0;
+  }
+  .tier {
+    height: auto !important;
+  }
+}
+
+/* Bank tokens: make the physical token color unmistakable. */
+.bank-token button {
+  position: relative;
+  overflow: hidden;
+  text-shadow: 0 1px 2px rgba(0,0,0,.45);
+}
+.bank-token button::after {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.28);
+  pointer-events: none;
+}
+.bank-token button.black { background: radial-gradient(circle at 32% 28%, #59616d 0%, #303640 42%, #11151b 100%) !important; }
+.bank-token button.white { background: radial-gradient(circle at 32% 28%, #fff 0%, #e9edf4 50%, #aeb8c7 100%) !important; color:#1b2432 !important; text-shadow:none; }
+.bank-token button.red { background: radial-gradient(circle at 32% 28%, #ff7b7b 0%, #d94b4b 50%, #8f252c 100%) !important; }
+.bank-token button.blue { background: radial-gradient(circle at 32% 28%, #69b0ff 0%, #347ed6 50%, #1c4b88 100%) !important; }
+.bank-token button.green { background: radial-gradient(circle at 32% 28%, #70e49b 0%, #36a866 50%, #1c6943 100%) !important; }
+.bank-token button.gold { background: radial-gradient(circle at 32% 28%, #ffe98a 0%, #e3b342 50%, #956f18 100%) !important; }
+
+/* Owned-card counter: only the card pictogram is colored; the number stays clean. */
+.card-count-icon {
+  width: 19px;
+  height: 24px;
+  border: 2px solid #6fa8e8;
+  border-radius: 3px;
+  display: inline-block;
+  position: relative;
+  background: linear-gradient(160deg,#315f91,#17324f);
+  box-shadow: 2px 2px 0 rgba(111,168,232,.28);
+  flex: 0 0 auto;
+}
+.card-count-icon::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: -4px;
+  top: 3px;
+  border: 2px solid rgba(111,168,232,.65);
+  border-radius: 3px;
+  background: transparent;
+  z-index: -1;
+}
+.owned-card-label b,
+.noble-stat b {
+  background: none !important;
+  padding: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Keep the owned-card and noble counters compact on short landscape screens. */
+@media (orientation: landscape) and (min-width: 700px) and (max-height: 500px) {
+  .ownership-row { gap: 8px; }
+  .card-count-icon { width:17px; height:22px; }
+}
+.bank-token-mark{display:block;position:relative;z-index:1;font-size:18px;line-height:1}
+/* v3.9.2.5: remove the inherited color background from the inner bank-token mark. */
+.bank-token-mark{background:transparent !important;background-color:transparent !important;background-image:none !important;box-shadow:none !important;border:0 !important;}
+.bank-token-mark.white{color:#20242c}.bank-token-mark.gold{color:#fff}
+
+/* =========================================================
+   v3.9 — Splendor visual foundation
+   ========================================================= */
+:root{
+  --spl-gold:#e9bf55;
+  --spl-gold-soft:#f4d98b;
+  --spl-surface:rgba(19,29,47,.96);
+  --spl-surface-2:#17243a;
+  --spl-line:rgba(157,180,215,.18);
+}
+
+/* A little more "tabletop" depth without adding external assets. */
+.panel,.board,.player,.noble{
+  box-shadow:0 10px 26px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.025);
+}
+
+/* Cards: points and cost have their own visual zones so they never fight for space. */
+.card{
+  isolation:isolate;
+  background-image:linear-gradient(145deg,rgba(255,255,255,.08),transparent 32%),var(--card-bg,linear-gradient(160deg,#22324e,#111a2b));
+  box-shadow:0 5px 12px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.13);
+  transform-origin:center bottom;
+  will-change:transform;
+}
+.card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(120deg,rgba(255,255,255,.10),transparent 28%,transparent 72%,rgba(0,0,0,.12));
+  opacity:.55;
+}
+.card .points{
+  position:relative;
+  z-index:3;
+  display:grid;
+  place-items:center;
+  width:38px;
+  height:38px;
+  border-radius:11px;
+  background:rgba(5,10,18,.28);
+  border:1px solid rgba(255,255,255,.16);
+  text-shadow:0 2px 4px rgba(0,0,0,.35);
+}
+.card.white .points{background:rgba(255,255,255,.35);border-color:rgba(0,0,0,.12);text-shadow:none}
+.card .bonus{z-index:3}
+.card .bonus .dot{width:19px;height:19px;box-shadow:0 0 0 2px rgba(255,255,255,.12),inset 0 2px 4px rgba(255,255,255,.25),0 2px 5px rgba(0,0,0,.25)}
+.card .cost{
+  z-index:3;
+  margin-top:auto;
+  padding:6px;
+  border-radius:9px;
+  background:rgba(4,9,16,.34);
+  border:1px solid rgba(255,255,255,.10);
+  backdrop-filter:blur(4px);
+  box-shadow:0 3px 8px rgba(0,0,0,.14);
+}
+.card.white .cost{background:rgba(255,255,255,.28);border-color:rgba(0,0,0,.10)}
+.card .cost .pip{font-weight:850;line-height:1}
+.card .cost .dot{box-shadow:inset 0 1px 3px rgba(0,0,0,.42),0 0 0 1px rgba(255,255,255,.15)}
+
+/* Subtle physical-card interaction. */
+.card:hover{transform:translateY(-3px) rotateX(1deg);box-shadow:0 9px 18px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.16)}
+.card:active{transform:translateY(1px) scale(.985);transition-duration:.06s}
+.card.selected{animation:cardSelected .55s ease-out}
+@keyframes cardSelected{0%{box-shadow:0 0 0 0 rgba(233,191,85,0)}45%{box-shadow:0 0 0 5px rgba(233,191,85,.16)}100%{box-shadow:0 0 0 2px rgba(233,191,85,.55)}}
+
+/* Tokens should look like little physical chips. */
+.bank-token button{
+  box-shadow:inset 0 3px 7px rgba(255,255,255,.18),inset 0 -4px 8px rgba(0,0,0,.24),0 6px 11px rgba(0,0,0,.28);
+  transition:transform .14s ease,filter .14s ease;
+}
+.bank-token button:hover{transform:translateY(-2px) scale(1.035);filter:brightness(1.06)}
+.bank-token button:active{transform:translateY(1px) scale(.97)}
+.bank-token button::before{
+  content:"";
+  position:absolute;
+  left:17%;top:12%;width:32%;height:18%;
+  border-radius:50%;
+  background:rgba(255,255,255,.22);
+  filter:blur(2px);
+  pointer-events:none;
+}
+
+/* Player card counter: only the card icon carries the visual card treatment. */
+.owned-card-label{display:inline-flex;align-items:center;gap:6px}
+.owned-card-label .card-count-icon{
+  background:linear-gradient(145deg,#6fa8e8,#214b79);
+  border-color:#a7c9ec;
+  box-shadow:3px 3px 0 rgba(111,168,232,.18),inset 0 2px 4px rgba(255,255,255,.16);
+}
+.owned-card-label .card-count-icon::before{background:linear-gradient(145deg,#416d9f,#18324f)}
+.owned-card-label b{font-size:13px!important;color:var(--text)!important}
+
+/* Keep the game a single vertical document in landscape. */
+@media (orientation:landscape) and (min-width:700px){
+  html,body{overflow-x:hidden!important;overflow-y:auto!important;height:auto!important;min-height:100%!important}
+  body{touch-action:pan-y!important}
+  #gameView{height:auto!important;min-height:0!important;overflow:visible!important}
+  main{height:auto!important;overflow:visible!important}
+  .board{height:auto!important;overflow:visible!important}
+  #market{height:auto!important;overflow:visible!important}
+  .tier{height:auto!important;overflow:visible!important}
+  .card-row{height:auto!important;overflow:visible!important}
+
+  /* Compact but readable card proportions: four cards fit comfortably without a second axis scroll. */
+  .card-row{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .card{height:124px;min-height:124px;padding:7px}
+  .card .points{width:34px;height:34px;border-radius:9px;font-size:22px}
+  .card .cost{gap:3px;padding:5px}
+  .card .cost .pip{font-size:9px;padding:2px 3px}
+  .card .cost .dot{width:12px;height:12px}
+
+  /* Reduce dead space between the three tiers. */
+  .tier-title{margin:2px 0 3px}
+  #market{gap:5px}
+  .tier{margin-bottom:0}
+}
+
+@media (orientation:landscape) and (min-width:700px) and (max-height:500px){
+  .card{height:108px;min-height:108px;padding:6px}
+  .card .points{width:30px;height:30px;font-size:19px}
+  .card .bonus .dot{width:16px;height:16px}
+  .card .cost{padding:4px}
+  .card .cost .pip{font-size:8px}
+  .card .cost .dot{width:11px;height:11px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .card,.bank-token button,.card.selected{animation:none!important;transition:none!important}
+}
+
+
+/* --- v3.9.1: native page scrolling / no pull-to-refresh --- */
+html {
+  min-height: 100%;
+  height: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: none !important;
+}
+body {
+  min-height: 100vh;
+  height: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+  overscroll-behavior-y: none !important;
+  touch-action: pan-y !important;
+}
+#gameView {
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+
+/* --- v3.9.1.1: single native page scroll, preserve existing UI --- */
+html, body, #app, main, #gameView, .board, #market, .tier, .card-row, #players, .actions, #actionArea, .log-panel {
+  box-sizing: border-box;
+}
+html {
+  overflow-x: hidden !important;
+  overflow-y: scroll !important;
+  height: auto !important;
+  min-height: 100%;
+  overscroll-behavior-y: none !important;
+}
+body {
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+  height: auto !important;
+  min-height: 100vh;
+  margin: 0;
+  touch-action: pan-y !important;
+  overscroll-behavior-y: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+#app {
+  width: 100%;
+  min-height: 100vh;
+  height: auto !important;
+  overflow: visible !important;
+}
+main, #gameView, .board {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+#market, .tier, .card-row, #players, .actions, #actionArea {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+#log {
+  max-height: 210px;
+  overflow: auto !important;
+}
+input, select, textarea {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+}
+@media (orientation: landscape) and (min-width: 700px) {
+  main { max-width: none; width: 100%; }
+  .board { width: 100%; }
+}
+
+/* --- v3.9.1.2: reliable mobile/PWA page scrolling --- */
+html {
+  height: 100% !important;
+  min-height: 100% !important;
+  overflow: hidden !important;
+  overflow-x: hidden !important;
+  overscroll-behavior-y: none !important;
+}
+body {
+  height: 100dvh !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: none !important;
+  touch-action: pan-y !important;
+}
+#app {
+  min-height: 100% !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* The document itself scrolls; no game section is allowed to become a scroll trap. */
+main,
+#gameView,
+.board,
+#market,
+.tier,
+.card-row,
+#players,
+.actions,
+#actionArea,
+.log-panel {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* --- v3.9.1.2: keep card points permanently clear of the cost area --- */
+.card {
+  display: flex !important;
+  flex-direction: column !important;
+}
+.card .points {
+  position: relative !important;
+  z-index: 4 !important;
+  flex: 0 0 auto;
+}
+.card .cost {
+  position: static !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  margin-top: auto !important;
+  z-index: 3 !important;
+  flex: 0 0 auto;
+  max-width: 100%;
+}
