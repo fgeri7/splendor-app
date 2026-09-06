@@ -1,0 +1,22 @@
+SPLENDOR v3.9.2 – UI cleanup patch
+
+Ez a javítás a jelenlegi, működő v3.9.1.x scrollozási architektúrát NEM módosítja.
+
+Javítások:
+1. A zsetonbank fizikai zsetonjain megszűnik a színosztályból öröklődő téglalap.
+   A zseton saját kör alakú, színes megjelenése megmarad.
+2. A játékosok Bónuszok sorában csak a kis kártya-piktogram kap színes hátteret.
+   A hozzá tartozó szám tiszta, háttér nélküli szöveg marad.
+3. A birtokolt kártyák számlálójánál is csak maga a kártyaikon színes,
+   a darabszám háttér nélküli marad.
+4. Nem nyúl a scrollozáshoz, a landscape/portrait layouthez vagy a játékmenethez.
+
+TEENDŐ:
+A GitHub repó jelenlegi style.css fájljának LEGALJÁRA másold be a
+splendor-v3.9.2-style-fix.css teljes tartalmát.
+
+Ez szándékosan csak egy CSS override, hogy ne írjuk felül a most már működő
+v3.9.1.x scrollozási javításokat.
+
+Forrásellenőrzés:
+A javítás a fgeri7/splendor-app aktuális main ágának style.css szerkezetéhez készült.

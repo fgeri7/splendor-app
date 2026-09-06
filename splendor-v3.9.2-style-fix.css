@@ -1,0 +1,80 @@
+/* Splendor v3.9.2 — final token/card-counter cleanup
+   Keeps the tested v3.9.1.x scrolling architecture intact.
+*/
+
+/* The bank chip itself supplies the color. Never paint a rectangular
+   background behind the central mark. */
+.bank-token-mark {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
+
+/* Keep the chip symbols visually clean; gold may retain its star. */
+.bank-token-mark.black,
+.bank-token-mark.white,
+.bank-token-mark.red,
+.bank-token-mark.blue,
+.bank-token-mark.green {
+  background: transparent !important;
+}
+
+/* Bonus counters: only the little card-shaped pictogram is colored.
+   The numeric value must remain plain text. */
+.mini-card-bonus,
+.mini-card-bonus.black,
+.mini-card-bonus.white,
+.mini-card-bonus.red,
+.mini-card-bonus.blue,
+.mini-card-bonus.green {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.mini-card-bonus i {
+  flex: 0 0 auto;
+  width: 12px !important;
+  height: 16px !important;
+  border-radius: 2px !important;
+  display: inline-block !important;
+  border: 1px solid rgba(255,255,255,.45) !important;
+  background: currentColor !important;
+  opacity: .9;
+}
+
+.mini-card-bonus b {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: var(--text) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Do not let the generic color classes reintroduce a background on
+   the bonus wrapper. */
+.bonus-row .mini-card-bonus.black,
+.bonus-row .mini-card-bonus.white,
+.bonus-row .mini-card-bonus.red,
+.bonus-row .mini-card-bonus.blue,
+.bonus-row .mini-card-bonus.green {
+  background: transparent !important;
+}
+
+/* The owned-card counter remains a colored card pictogram + plain number. */
+.owned-card-label .card-count-icon {
+  flex: 0 0 auto;
+}
+.owned-card-label b {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
