@@ -105,3 +105,78 @@ input,select,textarea{ -webkit-user-select:text; user-select:text; -webkit-touch
 .confirm-modal p{color:var(--muted);line-height:1.5;margin:0}
 .modal-close-action{margin-top:12px}
 @media(max-width:480px){.ownership-row{gap:8px}.owned-stat{font-size:10px}.bonus-row{gap:4px}.reserved-summary{font-size:10px}.app-modal-backdrop{padding:10px}.app-modal{padding:13px}.reserved-modal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reserved-modal-grid .card{min-height:140px}}
+
+/* --- v3.6 landscape-first compact board --- */
+@media (orientation: landscape) and (min-width: 700px) {
+  html, body { width:100%; max-width:100%; overflow-x:hidden; }
+  .topbar { width:100%; }
+  main { width:100%; max-width:none; padding:8px 10px; }
+  .board { 
+    width:100%;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(230px,260px);
+    grid-template-areas:
+      "marketHead side"
+      "market side";
+    gap:8px 10px;
+    padding:10px;
+  }
+  .board > .section-head:nth-of-type(1) { display:none; }
+  .board > .nobles { grid-area:side; display:grid; grid-template-columns:1fr; gap:6px; overflow:visible; }
+  .board > .section-head:nth-of-type(2) { grid-area:marketHead; margin:0; }
+  .board > #market { grid-area:market; display:grid; grid-template-columns:1fr; gap:6px; min-width:0; }
+  .board > .section-head:nth-of-type(3), .board > #bank { display:none; }
+  .noble { min-width:0; padding:8px; border-radius:11px; }
+  .noble-title { font-size:13px; }
+  .req { gap:4px; margin-top:5px; }
+  .req .pip { font-size:10px; }
+  .tier { margin:0; min-width:0; }
+  .tier-title { font-size:10px; margin-bottom:4px; }
+  .card-row { grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; min-width:0; }
+  .card { 
+    min-width:0;
+    min-height:132px;
+    height:132px;
+    padding:7px;
+    border-radius:11px;
+    display:flex;
+    flex-direction:column;
+  }
+  .card .points { position:relative; z-index:2; font-size:24px; line-height:1; }
+  .bonus { right:7px; top:7px; }
+  .cost { position:static; left:auto; right:auto; bottom:auto; margin-top:auto; display:flex; flex-wrap:wrap; gap:3px; align-content:flex-end; }
+  .cost .pip { font-size:10px; padding:2px 4px; border-radius:6px; }
+  .cost .dot { width:13px; height:13px; }
+  .players { grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; margin-bottom:8px; }
+  .player { padding:8px; }
+  .score { font-size:22px; }
+  .token-summary { margin-top:5px; }
+  .mini-tokens { gap:4px; margin-top:5px; }
+  .mini-token { font-size:10px; }
+  .ownership-row { margin-top:6px; padding-top:6px; }
+  .bonus-row { margin-top:5px; }
+  .reserved-summary { margin-top:6px; padding:6px 7px; }
+  .actions { display:grid; grid-template-columns:210px minmax(0,1fr); gap:8px; }
+  .actions > .section-head { grid-column:1; }
+  .action-grid { grid-column:1; }
+  #actionArea { grid-column:2; grid-row:1 / span 2; margin-top:0; min-width:0; }
+  #actionArea .card-row { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .log-panel { max-height:150px; }
+}
+
+@media (orientation: landscape) and (min-width: 700px) and (max-height: 500px) {
+  .topbar { padding:7px 12px; }
+  h1 { font-size:21px; }
+  main { padding:6px 8px; }
+  .board { padding:8px; grid-template-columns:minmax(0,1fr) 220px; gap:6px 8px; }
+  .card { min-height:116px; height:116px; padding:6px; }
+  .card .points { font-size:21px; }
+  .cost .pip { font-size:9px; padding:2px 3px; }
+  .cost .dot { width:12px; height:12px; }
+  .noble { padding:6px; }
+  .noble-title { font-size:12px; }
+  .players { gap:5px; }
+  .player { padding:7px; }
+  .score { font-size:20px; }
+  .ownership-row { gap:6px; }
+}
