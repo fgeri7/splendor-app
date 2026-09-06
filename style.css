@@ -595,3 +595,65 @@ input, select, textarea {
   main { max-width: none; width: 100%; }
   .board { width: 100%; }
 }
+
+/* --- v3.9.1.2: reliable mobile/PWA page scrolling --- */
+html {
+  height: 100% !important;
+  min-height: 100% !important;
+  overflow: hidden !important;
+  overflow-x: hidden !important;
+  overscroll-behavior-y: none !important;
+}
+body {
+  height: 100dvh !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: none !important;
+  touch-action: pan-y !important;
+}
+#app {
+  min-height: 100% !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* The document itself scrolls; no game section is allowed to become a scroll trap. */
+main,
+#gameView,
+.board,
+#market,
+.tier,
+.card-row,
+#players,
+.actions,
+#actionArea,
+.log-panel {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* --- v3.9.1.2: keep card points permanently clear of the cost area --- */
+.card {
+  display: flex !important;
+  flex-direction: column !important;
+}
+.card .points {
+  position: relative !important;
+  z-index: 4 !important;
+  flex: 0 0 auto;
+}
+.card .cost {
+  position: static !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  margin-top: auto !important;
+  z-index: 3 !important;
+  flex: 0 0 auto;
+  max-width: 100%;
+}

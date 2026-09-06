@@ -1,4 +1,4 @@
-const CACHE_NAME = 'splendor-digital-v3.9.1.1';
+const CACHE_NAME = 'splendor-digital-v3.9.1-scrollfix2.1';
 const APP_SHELL = ['./', './app.js', './style.css'];
 
 self.addEventListener('install', (event) => {
