@@ -1105,3 +1105,110 @@ body{
   .nobles .req{margin-top:10px;gap:5px}
   .nobles .req .pip{font-size:10px;padding:3px 6px 3px 4px}
 }
+
+/* =========================================================
+   v3.16 — INTERACTION & MOTION POLISH
+   Visual-only interaction refinement. No layout or gameplay changes.
+   ========================================================= */
+
+/* Keep interactions smooth without changing resting dimensions. */
+.card,
+.noble,
+.bank-token button,
+.action-grid button,
+.choice,
+.primary,
+.ghost,
+.danger,
+.reserved-summary,
+.card-count-icon,
+.mini-card-bonus {
+  -webkit-tap-highlight-color: transparent;
+  transition-property: transform, box-shadow, border-color, background, opacity, filter;
+  transition-duration: .16s;
+  transition-timing-function: ease-out;
+}
+
+/* Development cards: a restrained physical-card response. */
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.07);
+}
+.card:active {
+  transform: translateY(0) scale(.975) !important;
+  box-shadow: 0 3px 7px rgba(0,0,0,.18), inset 0 2px 5px rgba(0,0,0,.12);
+}
+.card.selected {
+  box-shadow: 0 0 0 2px var(--gold), 0 8px 18px rgba(230,184,77,.14), inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+/* Noble cards get the same tactile response, without changing their size. */
+.nobles .noble:hover {
+  transform: translateY(-2px);
+  border-color: rgba(217,168,255,.45);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 9px 18px rgba(0,0,0,.24), 0 0 16px rgba(217,168,255,.06);
+}
+.nobles .noble:active {
+  transform: translateY(0) scale(.985);
+}
+
+/* Bank tokens: subtle press/depth feedback only. */
+.bank-token button:hover {
+  transform: translateY(-2px) scale(1.025);
+  box-shadow: inset 0 3px 8px rgba(255,255,255,.14), 0 8px 14px rgba(0,0,0,.25);
+}
+.bank-token button:active {
+  transform: translateY(1px) scale(.96);
+  box-shadow: inset 0 4px 10px rgba(0,0,0,.18), 0 3px 7px rgba(0,0,0,.20);
+}
+
+/* Action controls: clear press state and keyboard focus. */
+.action-grid button:hover,
+.primary:hover,
+.ghost:hover,
+.danger:hover,
+.reserved-summary.can-open:hover,
+.choice:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+.action-grid button:active,
+.primary:active,
+.ghost:active,
+.danger:active,
+.reserved-summary.can-open:active,
+.choice:active:not(:disabled) {
+  transform: translateY(1px) scale(.985);
+  filter: brightness(.98);
+}
+
+button:focus-visible,
+.card:focus-visible,
+.choice:focus-visible {
+  outline: 2px solid rgba(230,184,77,.9);
+  outline-offset: 2px;
+}
+
+/* The active player's panel has a very subtle living highlight. */
+.player.current {
+  animation: current-player-glow 2.8s ease-in-out infinite;
+}
+
+@keyframes current-player-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(230,184,77,.20), 0 0 0 rgba(230,184,77,0);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(230,184,77,.34), 0 0 16px rgba(230,184,77,.07);
+  }
+}
+
+/* Avoid motion for users who request reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

@@ -1,15 +1,19 @@
-Splendor v3.15
+Splendor v3.16
 
-Based on the accepted v3.13 files.
-Single-purpose fix:
-- All development cards in all three tiers use one uniform card height.
-- Point and resource-cost areas remain separated.
-- Service worker cache version bumped to force the updated CSS to be fetched.
+Based directly on the accepted v3.15 files.
 
-No player-panel, token, scrolling, gameplay, or other UI changes were made.
+Single-purpose update:
+- Added restrained interaction/motion polish for development cards, noble cards, bank tokens, action controls and buttons.
+- Added keyboard focus visibility.
+- Added a subtle active-player panel highlight.
+- Added prefers-reduced-motion support.
 
+Preserved from v3.15:
+- Uniform development-card heights across all three tiers.
+- Separate point and resource-cost zones.
+- Player-panel token/card layout.
+- Black card indicator instead of grey.
+- Noble visual refinement.
+- Landscape-first layout and existing scroll behavior.
 
-Noble visual refinement:
-- Premium Splendor-themed styling for noble cards.
-- Requirements remain clearly separated and readable.
-- No changes to player panels, development cards, tokens, scrolling, or gameplay.
+No gameplay, data, layout structure, token design, player-panel arrangement, card sizing, or scroll logic was changed.
