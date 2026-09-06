@@ -731,8 +731,9 @@ function render(){
         <button
           class="${c}"
           data-bank="${c}"
+          aria-label="${LABEL[c]} zseton, ${state.bank[c]} darab a bankban"
         >
-          ${ICON[c]}
+          <span class="bank-token-mark ${c}" aria-hidden="true">${ICON[c]}</span>
         </button>
 
         <small>
@@ -764,31 +765,46 @@ function render(){
           </span>
         </div>
 
+        <div class="token-summary">
+          <span class="summary-label">Zsetonok</span>
+          <strong>${totalTokens(x)}</strong>
+        </div>
+
         <div class="mini-tokens">
           ${
             ALL.map(c=>`
-              <span class="mini">
-                ${pip(c,x.tokens[c])}
+              <span class="mini-token">
+                <i class="dot ${c}"></i><b>${x.tokens[c]}</b>
               </span>
             `).join("")
           }
         </div>
 
-        <div class="mini-bonus">
+        <div class="ownership-row">
+          <div class="owned-stat">
+            <span class="card-count-icon" aria-hidden="true"></span>
+            <span class="owned-card-label"><b>${x.cards.length}</b> kártya</span>
+          </div>
+          <div class="owned-stat noble-stat">
+            <span class="noble-count-icon" aria-hidden="true">♛</span>
+            <span><b>${x.nobles.length}</b> nemes</span>
+          </div>
+        </div>
+
+        <div class="bonus-row">
+          <span class="summary-label">Bónuszok</span>
           ${
             COLORS.map(c=>`
-              <span class="mini">
-                ${pip(c,bonusCount(x,c))}
+              <span class="mini-card-bonus ${c}" title="${LABEL[c]}: ${bonusCount(x,c)}">
+                <i></i><b>${bonusCount(x,c)}</b>
               </span>
             `).join("")
           }
         </div>
 
-        <div class="reserved">
-          Tartalék: ${x.reserved.length}/3 ·
-          Kártyák: ${x.cards.length} ·
-          Nemesek: ${x.nobles.length}
-        </div>
+        <button class="reserved-summary ${x.id===p.id ? "can-open" : ""}" data-show-reserved="${x.id}" ${x.id===p.id ? "" : "disabled"}>
+          Tartalék kártyák: ${x.reserved.length}/3${x.id===p.id ? " · Megnézem" : ""}
+        </button>
 
       </div>
     `).join("");
@@ -963,8 +979,9 @@ function renderReserve(){
     state.market[t].forEach(c=>{
       const d=document.createElement("div");
       d.innerHTML=cardHtml(c);
-      d.firstChild.onclick=()=>reserve(c,t,false);
-      wrap.appendChild(d.firstChild);
+      const el=d.firstElementChild;
+      el.onclick=()=>reserve(c,t,false);
+      wrap.appendChild(el);
     });
   }
 
@@ -995,7 +1012,7 @@ function renderBuy(){
 
       d.innerHTML=cardHtml(c);
 
-      const el=d.firstChild;
+      const el=d.firstElementChild;
 
       el.style.opacity=
         affordability(p,c)
@@ -1015,7 +1032,7 @@ function renderBuy(){
 
     d.innerHTML=cardHtml(c);
 
-    const el=d.firstChild;
+    const el=d.firstElementChild;
 
     el.style.outline=
       "2px dashed #e6b84d";
@@ -1030,7 +1047,79 @@ function renderBuy(){
   actionArea.appendChild(wrap);
 }
 
+function showReserved(playerId){
+  const me=state.players.find(x=>x.id===playerId);
+  const current=state.players[state.turn];
+  if(!me || me.id!==current.id) return;
+
+  const overlay=document.createElement("div");
+  overlay.className="app-modal-backdrop";
+  overlay.innerHTML=`
+    <div class="app-modal" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <div>
+          <div class="modal-eyebrow">${me.reserved.length}/3 TARTALÉK</div>
+          <h3>${me.name} tartalék kártyái</h3>
+        </div>
+        <button class="modal-close" type="button" aria-label="Bezárás">×</button>
+      </div>
+      <div class="reserved-modal-grid">
+        ${me.reserved.length ? me.reserved.map(c=>cardHtml(c,"reserved-card")).join("") : '<div class="modal-empty">Nincs tartalék kártyád.</div>'}
+      </div>
+      <button class="ghost wide modal-close-action" type="button">Bezárás</button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  const close=()=>overlay.remove();
+  overlay.addEventListener("click",e=>{ if(e.target===overlay) close(); });
+  overlay.querySelectorAll(".modal-close,.modal-close-action").forEach(b=>b.addEventListener("click",close));
+}
+
+function showConfirm(title,message,onConfirm){
+  const overlay=document.createElement("div");
+  overlay.className="app-modal-backdrop";
+  overlay.innerHTML=`
+    <div class="app-modal confirm-modal" role="dialog" aria-modal="true">
+      <div class="modal-head"><h3>${title}</h3><button class="modal-close" type="button" aria-label="Bezárás">×</button></div>
+      <p>${message}</p>
+      <div class="modal-actions">
+        <button class="ghost" data-cancel type="button">Mégse</button>
+        <button class="danger" data-confirm type="button">Új játék</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  const close=()=>overlay.remove();
+  overlay.addEventListener("click",e=>{if(e.target===overlay)close()});
+  overlay.querySelector("[data-cancel]").onclick=close;
+  overlay.querySelector(".modal-close").onclick=close;
+  overlay.querySelector("[data-confirm]").onclick=()=>{close();onConfirm()};
+}
+
+function preventTextSelectionAndContextMenu(){
+  document.addEventListener("selectstart", e => {
+    const t=e.target;
+    if (t && (t.matches?.("input,textarea,select") || t.isContentEditable)) return;
+    e.preventDefault();
+  });
+  document.addEventListener("contextmenu", e => {
+    const t=e.target;
+    if (t && (t.matches?.("input,textarea,select") || t.isContentEditable)) return;
+    e.preventDefault();
+  });
+  document.addEventListener("dragstart", e => e.preventDefault());
+}
+
+function preventPullToRefresh(){
+  // Do not intercept touchmove: that can accidentally disable the page scroll.
+  // Pull-to-refresh is disabled by CSS overscroll-behavior instead, while
+  // normal vertical scrolling remains native.
+  document.documentElement.style.overscrollBehaviorY="none";
+  document.body.style.overscrollBehaviorY="none";
+}
+
 function setup(){
+  preventTextSelectionAndContextMenu();
   setupView.classList.remove("hidden");
   gameView.classList.add("hidden");
   renderNames();
@@ -1126,17 +1215,17 @@ document.getElementById(
 document.getElementById(
   "newBtn"
 ).onclick=()=>{
-  if(confirm("Biztosan új játékot kezdesz?")){
-    localStorage.removeItem(
-      "splendor-prototype"
-    );
-
-    state=null;
-    selectedAction=null;
-    selectedColors=[];
-
-    setup();
-  }
+  showConfirm(
+    "Új játék",
+    "Biztosan új játékot kezdesz? A jelenlegi játék mentése törlődik.",
+    ()=>{
+      localStorage.removeItem("splendor-prototype");
+      state=null;
+      selectedAction=null;
+      selectedColors=[];
+      setup();
+    }
+  );
 };
 
 document.getElementById(
@@ -1168,6 +1257,14 @@ document
     };
   });
 
+window.addEventListener("click",e=>{
+  const reservedBtn=e.target.closest("[data-show-reserved]");
+  if(reservedBtn && !reservedBtn.disabled){
+    showReserved(reservedBtn.dataset.showReserved);
+    return;
+  }
+});
+
 window.addEventListener(
   "click",
   e=>{
@@ -1182,6 +1279,8 @@ window.addEventListener(
     }
   }
 );
+
+preventPullToRefresh();
 
 if(load()){
   render();
