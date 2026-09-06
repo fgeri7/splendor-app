@@ -988,3 +988,23 @@ body{
 .card:active{
   transform:translateY(1px) scale(.985) !important;
 }
+
+/* =========================================================
+   v3.13 — UNIFORM DEVELOPMENT CARD HEIGHTS
+   Only the market/development cards are affected.
+   Every tier uses the same card height; point and cost zones
+   remain separated so neither can overlap the other.
+   ========================================================= */
+#market .card {
+  height:132px !important;
+  min-height:132px !important;
+  max-height:132px !important;
+  box-sizing:border-box !important;
+}
+#market .card .points {
+  flex:0 0 auto !important;
+}
+#market .card .cost {
+  margin-top:auto !important;
+  flex:0 0 auto !important;
+}
