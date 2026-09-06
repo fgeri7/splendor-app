@@ -780,17 +780,6 @@ function render(){
           }
         </div>
 
-        <div class="ownership-row">
-          <div class="owned-stat">
-            <span class="card-count-icon" aria-hidden="true"></span>
-            <span class="owned-card-label"><b>${x.cards.length}</b> kártya</span>
-          </div>
-          <div class="owned-stat noble-stat">
-            <span class="noble-count-icon" aria-hidden="true">♛</span>
-            <span><b>${x.nobles.length}</b> nemes</span>
-          </div>
-        </div>
-
         <div class="bonus-row">
           <span class="summary-label">Kártyák</span>
           ${
@@ -800,6 +789,17 @@ function render(){
               </span>
             `).join("")
           }
+        </div>
+
+        <div class="ownership-row">
+          <div class="owned-stat">
+            <span class="card-count-icon" aria-hidden="true"></span>
+            <span class="owned-card-label"><b>${x.cards.length}</b> kártya</span>
+          </div>
+          <div class="owned-stat noble-stat">
+            <span class="noble-count-icon" aria-hidden="true">♛</span>
+            <span><b>${x.nobles.length}</b> nemes</span>
+          </div>
         </div>
 
         <button class="reserved-summary ${x.id===p.id ? "can-open" : ""}" data-show-reserved="${x.id}" ${x.id===p.id ? "" : "disabled"}>
