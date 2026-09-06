@@ -731,8 +731,9 @@ function render(){
         <button
           class="${c}"
           data-bank="${c}"
+          aria-label="${LABEL[c]} zseton, ${state.bank[c]} darab a bankban"
         >
-          ${ICON[c]}
+          <span class="bank-token-mark ${c}" aria-hidden="true">${ICON[c]}</span>
         </button>
 
         <small>
@@ -782,7 +783,7 @@ function render(){
         <div class="ownership-row">
           <div class="owned-stat">
             <span class="card-count-icon" aria-hidden="true"></span>
-            <span><b>${x.cards.length}</b> kártya</span>
+            <span class="owned-card-label"><b>${x.cards.length}</b> kártya</span>
           </div>
           <div class="owned-stat noble-stat">
             <span class="noble-count-icon" aria-hidden="true">♛</span>
