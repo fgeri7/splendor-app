@@ -822,3 +822,41 @@ body{
 @media (prefers-reduced-motion:reduce){
   .card,.action-grid button{transition:none}
 }
+
+/* v3.10.1 — final player inventory alignment
+   Keep all six token types and all five card colors on exactly one row.
+   Counts stay underneath their icon. Gold is not a card. */
+.player .mini-tokens{
+  display:grid !important;
+  grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+  align-items:start !important;
+  gap:4px !important;
+  width:100% !important;
+  flex-wrap:nowrap !important;
+}
+.player .mini-token{
+  min-width:0 !important;
+  width:100% !important;
+  margin:0 !important;
+}
+.player .bonus-row{
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  align-items:start !important;
+  gap:4px !important;
+  width:100% !important;
+}
+.player .bonus-row > .summary-label{
+  grid-column:1 / -1 !important;
+  margin:0 0 7px 0 !important;
+}
+.player .bonus-row > .mini-card-bonus{
+  min-width:0 !important;
+  width:100% !important;
+  margin:0 !important;
+}
+@media(max-width:480px){
+  .player .mini-tokens{gap:2px !important}
+  .player .bonus-row{gap:2px !important}
+  .player .bonus-row > .mini-card-bonus{margin:0 !important}
+}
