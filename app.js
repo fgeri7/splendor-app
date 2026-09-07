@@ -3,6 +3,7 @@ const ALL=["black","white","red","blue","green","gold"];
 const LABEL={black:"Ónix",white:"Gyémánt",red:"Rubin",blue:"Zafír",green:"Smaragd",gold:"Arany"};
 const ICON={black:"●",white:"●",red:"●",blue:"●",green:"●",gold:"★"};
 let state=null, selectedAction=null, selectedColors=[];
+let pendingReserveFeedback=null;
 let pendingCardPurchaseFeedback=null;
 
 function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
@@ -507,6 +508,43 @@ function take2(c){
   }
 }
 
+function animateReserveFeedback(playerId, bonus, gotGold){
+  requestAnimationFrame(()=>{
+    const panel=document.querySelector(
+      `.player .mini-token[data-player-id="${playerId}"]`
+    )?.closest(".player");
+
+    if(!panel) return;
+
+    const reserved=panel.querySelector(".reserved-summary");
+    const owned=panel.querySelector(".owned-card-label");
+    const bonusCard=panel.querySelector(`.mini-card-bonus[data-card-bonus="${bonus}"]`);
+    const gold=gotGold
+      ? panel.querySelector('.mini-token[data-color="gold"]')
+      : null;
+
+    [reserved,owned,bonusCard,gold].filter(Boolean).forEach(el=>{
+      el.classList.remove("reserve-gain-pop");
+      void el.offsetWidth;
+      el.classList.add("reserve-gain-pop");
+      el.addEventListener(
+        "animationend",
+        ()=>el.classList.remove("reserve-gain-pop"),
+        {once:true}
+      );
+    });
+
+    panel.classList.remove("reserve-gain-feedback");
+    void panel.offsetWidth;
+    panel.classList.add("reserve-gain-feedback");
+    panel.addEventListener(
+      "animationend",
+      ()=>panel.classList.remove("reserve-gain-feedback"),
+      {once:true}
+    );
+  });
+}
+
 function reserve(card,t,hidden=false){
   const p=state.players[state.turn];
 
@@ -545,10 +583,17 @@ function reserve(card,t,hidden=false){
     refill(t);
   }
 
-  if(state.bank.gold>0){
+  const gotGold=state.bank.gold>0;
+  if(gotGold){
     state.bank.gold--;
     p.tokens.gold++;
   }
+
+  pendingReserveFeedback={
+    playerId:p.id,
+    bonus:card.bonus,
+    gotGold
+  };
 
   log(
     `<b>${p.name}</b> ${
@@ -564,6 +609,16 @@ function reserve(card,t,hidden=false){
 
   if(!state.nobleChoice){
     advance();
+  }
+
+  if(pendingReserveFeedback){
+    const feedback=pendingReserveFeedback;
+    pendingReserveFeedback=null;
+    animateReserveFeedback(
+      feedback.playerId,
+      feedback.bonus,
+      feedback.gotGold
+    );
   }
 }
 
