@@ -46,6 +46,7 @@ function initialState(names){
     endTriggered:false,
     endTriggerIndex:null,
     winner:null,
+    winnerIds:[],
     bank,
     decks,
     market,
@@ -321,11 +322,18 @@ function advance(){
         b.points-a.points ||
         a.cards.length-b.cards.length
     );
+    const top=sorted[0];
+    const tiedWinners=sorted.filter(
+      p=>p.points===top.points && p.cards.length===top.cards.length
+    );
 
-    state.winner=sorted[0].id;
+    state.winner=top.id;
+    state.winnerIds=tiedWinners.map(p=>p.id);
 
     log(
-      `<b>${sorted[0].name}</b> nyerte a játékot ${sorted[0].points} ponttal.`
+      tiedWinners.length>1
+        ? `<b>${tiedWinners.map(p=>p.name).join(" és ")}</b> megosztotta a győzelmet ${top.points} ponttal.`
+        : `<b>${top.name}</b> nyerte a játékot ${top.points} ponttal.`
     );
 
     render();
@@ -455,12 +463,17 @@ function take3(colors){
   if(state.winner) return;
   const p=state.players[state.turn];
 
+  const availableColors=COLORS.filter(c=>state.bank[c]>0).length;
+  const requiredColors=Math.min(3,availableColors);
+
   if(
-    colors.length!==3 ||
-    new Set(colors).size!==3
+    colors.length!==requiredColors ||
+    new Set(colors).size!==colors.length
   ){
     return toast(
-      "Pontosan 3 különböző színt válassz."
+      requiredColors===3
+        ? "Pontosan 3 különböző színt válassz."
+        : `Most ${requiredColors} különböző színű zsetont vehetsz el.`
     );
   }
 
@@ -478,7 +491,7 @@ function take3(colors){
   });
 
   log(
-    `<b>${p.name}</b> 3 különböző zsetont vett el.`
+    `<b>${p.name}</b> ${colors.length} különböző zsetont vett el.`
   );
 
   selectedColors=[];
@@ -725,10 +738,6 @@ function buy(card,source,t,idx){
       feedback.points
     );
   }
-
-  if(!state.nobleChoice){
-    advance();
-  }
 }
 
 function showDiscard(){
@@ -973,12 +982,22 @@ function renderGameOverOverlay(){
 
   if(!state?.winner) return;
 
-  const winner=state.players.find(p=>p.id===state.winner);
-  if(!winner) return;
+  const winnerIds=
+    Array.isArray(state.winnerIds) && state.winnerIds.length
+      ? state.winnerIds
+      : [state.winner];
+
+  const winners=winnerIds
+    .map(id=>state.players.find(p=>p.id===id))
+    .filter(Boolean);
+  if(!winners.length) return;
 
   const results=[...state.players].sort(
     (a,b)=>b.points-a.points || a.cards.length-b.cards.length
   );
+  const shared=winners.length>1;
+  const winnerNames=winners.map(p=>p.name).join(" és ");
+  const topScore=winners[0].points;
 
   const overlay=document.createElement("div");
   overlay.id="gameOverOverlay";
@@ -987,15 +1006,16 @@ function renderGameOverOverlay(){
     <div class="game-over-card" role="dialog" aria-modal="true" aria-labelledby="gameOverTitle">
       <div class="game-over-crown" aria-hidden="true">♛</div>
       <div class="game-over-kicker">A JÁTÉK VÉGET ÉRT</div>
-      <h2 id="gameOverTitle">🏆 ${winner.name} nyert!</h2>
+      <h2 id="gameOverTitle">${shared ? "🏆 Döntetlen!" : `🏆 ${winners[0].name} nyert!`}</h2>
       <div class="game-over-winner-score">
-        <strong>${winner.points}</strong>
+        <strong>${topScore}</strong>
         <span>pont</span>
       </div>
+      ${shared ? `<div class="game-over-tie-text">${winnerNames} megosztják a győzelmet.</div>` : ""}
       <div class="game-over-results">
         ${results.map((player,index)=>`
-          <div class="game-over-result ${player.id===winner.id ? "winner" : ""}">
-            <span class="result-place">${index===0 ? "🏆" : index===1 ? "🥈" : index===2 ? "🥉" : `${index+1}.`}</span>
+          <div class="game-over-result ${winnerIds.includes(player.id) ? "winner" : ""}">
+            <span class="result-place">${winnerIds.includes(player.id) ? "🏆" : `${index+1}.`}</span>
             <span class="result-name">${player.name}</span>
             <strong>${player.points} pont</strong>
           </div>
@@ -1030,17 +1050,18 @@ function render(){
 
   const p=state.players[state.turn];
 
+  const winnerIds=Array.isArray(state.winnerIds) && state.winnerIds.length
+    ? state.winnerIds
+    : (state.winner ? [state.winner] : []);
+  const bannerWinners=winnerIds
+    .map(id=>state.players.find(x=>x.id===id))
+    .filter(Boolean);
+
   turnBanner.innerHTML=
     state.winner
-      ? `🏆 <b>${
-          state.players.find(
-            x=>x.id===state.winner
-          ).name
-        }</b> nyert – ${
-          state.players.find(
-            x=>x.id===state.winner
-          ).points
-        } pont`
+      ? bannerWinners.length>1
+        ? `🏆 <b>Döntetlen</b> – ${bannerWinners.map(x=>x.name).join(" és ")} · ${bannerWinners[0].points} pont`
+        : `🏆 <b>${bannerWinners[0]?.name||""}</b> nyert – ${bannerWinners[0]?.points||0} pont`
       : `Most <b>${p.name}</b> következik · ${state.round}. forduló`;
 
   nobles.innerHTML=
@@ -1215,7 +1236,15 @@ function render(){
 function renderTake3(){
   actionArea.innerHTML=`
     <div class="selected-count">
-      Válassz 3 különböző színt.
+      ${
+        (()=>{
+          const availableColors=COLORS.filter(c=>state.bank[c]>0).length;
+          const requiredColors=Math.min(3,availableColors);
+          return requiredColors===3
+            ? "Válassz 3 különböző színt."
+            : `A bankban csak ${requiredColors} különböző szín érhető el, ezért ${requiredColors} zsetont vehetsz el.`;
+        })()
+      }
     </div>
 
     <div class="choice-grid" id="take3grid"></div>
@@ -1266,9 +1295,15 @@ function renderTake3(){
     g.appendChild(b);
   });
 
-  document.getElementById(
-    "take3confirm"
-  ).onclick=()=>{
+  const availableColors=COLORS.filter(c=>state.bank[c]>0).length;
+  const requiredColors=Math.min(3,availableColors);
+  const confirm=document.getElementById("take3confirm");
+  confirm.disabled=selectedColors.length!==requiredColors;
+  confirm.textContent=
+    requiredColors===3
+      ? "Zsetonok elvétele"
+      : `${requiredColors} zseton elvétele`;
+  confirm.onclick=()=>{
     take3(selectedColors);
   };
 }
