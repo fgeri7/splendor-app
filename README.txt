@@ -1,11 +1,10 @@
-Splendor v3.21 – Turn Change Feedback
+Splendor v3.24 – Pass / End-Turn Feedback
 
-Based directly on the accepted v3.20.
+Based directly on the accepted v3.23.
 
-Only the turn transition feedback was added:
-- previous player's panel gently fades its active emphasis;
-- next player's panel gets a short gold pulse/highlight;
-- turn banner gets a subtle transition;
-- no layout, gameplay, token, card, scroll or existing feedback changes.
+Only the pass/end-turn visual feedback was added:
+- the end-turn button gets a short physical press / gold highlight effect;
+- no gameplay logic or layout changes;
+- existing turn-change, token, card, noble and reserve feedback remains intact.
 
-Cache version: v3.21.
+Cache version: v3.24.

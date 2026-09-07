@@ -1401,3 +1401,13 @@ button:focus-visible,
 @media (prefers-reduced-motion:reduce){
   .reserve-gain-feedback,.reserve-gain-pop{animation:none!important}
 }
+
+/* v3.24 – pass / end-turn feedback */
+@keyframes endTurnFeedback{
+  0%{transform:scale(1);filter:brightness(1);box-shadow:0 4px 10px rgba(0,0,0,.18)}
+  35%{transform:scale(1.025);filter:brightness(1.12);box-shadow:0 0 0 2px rgba(230,184,77,.45),0 0 20px rgba(230,184,77,.16)}
+  100%{transform:scale(1);filter:brightness(1);box-shadow:0 4px 10px rgba(0,0,0,.18)}
+}
+.end-turn-feedback{animation:endTurnFeedback .62s ease-out both}
+@media (prefers-reduced-motion:reduce){.end-turn-feedback{animation:none!important}}
+

@@ -1,4 +1,4 @@
-const CACHE_NAME="splendor-v3.23";
+const CACHE_NAME="splendor-v3.24";
 const APP_SHELL = ['./', './app.js', './style.css'];
 
 self.addEventListener('install', (event) => {

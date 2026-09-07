@@ -1535,6 +1535,19 @@ document
     };
   });
 
+/* v3.24 – end-turn / pass button feedback. Visual-only; no gameplay changes. */
+window.addEventListener("click",e=>{
+  const btn=e.target.closest("button");
+  if(!btn) return;
+  const label=(btn.textContent||"").trim().toLowerCase();
+  if(!/kör\s*(vége|befejez)/i.test(label)) return;
+
+  btn.classList.remove("end-turn-feedback");
+  void btn.offsetWidth;
+  btn.classList.add("end-turn-feedback");
+  window.setTimeout(()=>btn.classList.remove("end-turn-feedback"),650);
+},{capture:true});
+
 window.addEventListener("click",e=>{
   const reservedBtn=e.target.closest("[data-show-reserved]");
   if(reservedBtn && !reservedBtn.disabled){
