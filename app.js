@@ -903,6 +903,50 @@ function cardHtml(c,extra=""){
   `;
 }
 
+function renderGameOverOverlay(){
+  const existing=document.getElementById("gameOverOverlay");
+  if(existing) existing.remove();
+
+  if(!state?.winner) return;
+
+  const winner=state.players.find(p=>p.id===state.winner);
+  if(!winner) return;
+
+  const results=[...state.players].sort(
+    (a,b)=>b.points-a.points || a.cards.length-b.cards.length
+  );
+
+  const overlay=document.createElement("div");
+  overlay.id="gameOverOverlay";
+  overlay.className="game-over-overlay";
+  overlay.innerHTML=`
+    <div class="game-over-card" role="dialog" aria-modal="true" aria-labelledby="gameOverTitle">
+      <div class="game-over-crown" aria-hidden="true">♛</div>
+      <div class="game-over-kicker">A JÁTÉK VÉGET ÉRT</div>
+      <h2 id="gameOverTitle">🏆 ${winner.name} nyert!</h2>
+      <div class="game-over-winner-score">
+        <strong>${winner.points}</strong>
+        <span>pont</span>
+      </div>
+      <div class="game-over-results">
+        ${results.map((player,index)=>`
+          <div class="game-over-result ${player.id===winner.id ? "winner" : ""}">
+            <span class="result-place">${index===0 ? "🏆" : index===1 ? "🥈" : index===2 ? "🥉" : `${index+1}.`}</span>
+            <span class="result-name">${player.name}</span>
+            <strong>${player.points} pont</strong>
+          </div>
+        `).join("")}
+      </div>
+      <button class="primary wide game-over-new" type="button" data-game-over-new>Új játék</button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  overlay.querySelector("[data-game-over-new]").onclick=()=>{
+    document.getElementById("newBtn")?.click();
+  };
+}
+
 function render(){
   if(!state){
     setup();
@@ -1064,6 +1108,8 @@ function render(){
         </div>
       `)
       .join("");
+
+  renderGameOverOverlay();
 
   if(state.nobleChoice) return;
 

@@ -1411,3 +1411,37 @@ button:focus-visible,
 .end-turn-feedback{animation:endTurnFeedback .62s ease-out both}
 @media (prefers-reduced-motion:reduce){.end-turn-feedback{animation:none!important}}
 
+
+/* v3.25 – game-over result overlay */
+.game-over-overlay{
+  position:fixed;inset:0;z-index:80;display:grid;place-items:center;
+  padding:20px;background:rgba(5,10,18,.72);backdrop-filter:blur(8px);
+  animation:gameOverFade .28s ease-out both;
+}
+.game-over-card{
+  width:min(520px,100%);max-height:min(90vh,720px);overflow:auto;
+  padding:26px 24px 22px;border-radius:22px;text-align:center;
+  background:linear-gradient(160deg,#1d2d47,#101a2b);
+  border:1px solid rgba(230,184,77,.42);
+  box-shadow:0 24px 70px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.04) inset;
+  animation:gameOverCard .42s cubic-bezier(.2,.8,.2,1) both;
+}
+.game-over-crown{
+  width:58px;height:58px;margin:0 auto 9px;border-radius:17px;display:grid;place-items:center;
+  background:linear-gradient(145deg,#e8bd54,#8f6214);color:#fff;font-size:31px;
+  box-shadow:0 8px 22px rgba(0,0,0,.25);
+}
+.game-over-kicker{font-size:10px;letter-spacing:2.2px;color:var(--gold);font-weight:900}
+.game-over-card h2{margin:7px 0 2px;font-size:25px}
+.game-over-winner-score{display:flex;align-items:baseline;justify-content:center;gap:7px;margin:3px 0 18px;color:var(--gold)}
+.game-over-winner-score strong{font-size:39px;line-height:1;font-weight:950}
+.game-over-winner-score span{font-size:13px;font-weight:800;color:var(--muted)}
+.game-over-results{display:flex;flex-direction:column;gap:7px;text-align:left}
+.game-over-result{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:8px;padding:10px 11px;border-radius:11px;background:#0f1929;border:1px solid rgba(255,255,255,.06)}
+.game-over-result.winner{border-color:rgba(230,184,77,.42);background:rgba(230,184,77,.09)}
+.result-place{font-size:17px;text-align:center}.result-name{font-weight:850;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.game-over-result strong{font-size:12px;color:var(--muted)}
+.game-over-new{margin-top:16px}
+@keyframes gameOverFade{from{opacity:0}to{opacity:1}}
+@keyframes gameOverCard{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:480px){.game-over-overlay{padding:12px}.game-over-card{padding:20px 15px 16px;border-radius:18px}.game-over-card h2{font-size:22px}.game-over-result{grid-template-columns:32px minmax(0,1fr) auto;padding:9px}.game-over-winner-score strong{font-size:34px}}
+@media(prefers-reduced-motion:reduce){.game-over-overlay,.game-over-card{animation:none!important}}
