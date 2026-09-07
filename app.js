@@ -284,6 +284,7 @@ function checkEnd(){
 }
 
 function advance(){
+  const previousTurn=state.turn;
   state.turn=
     (state.turn+1)%state.players.length;
 
@@ -326,7 +327,42 @@ function advance(){
   selectedColors=[];
 
   render();
+  animateTurnChange(previousTurn, state.turn);
   save();
+}
+
+
+function animateTurnChange(previousTurn, nextTurn){
+  if(previousTurn===nextTurn) return;
+
+  const playersEls=document.querySelectorAll('#players .player');
+  const previousPlayer=playersEls[previousTurn];
+  const nextPlayer=playersEls[nextTurn];
+  const banner=document.getElementById('turnBanner');
+
+  if(previousPlayer){
+    previousPlayer.classList.remove('turn-ending-feedback');
+    void previousPlayer.offsetWidth;
+    previousPlayer.classList.add('turn-ending-feedback');
+  }
+
+  if(nextPlayer){
+    nextPlayer.classList.remove('turn-start-feedback');
+    void nextPlayer.offsetWidth;
+    nextPlayer.classList.add('turn-start-feedback');
+  }
+
+  if(banner){
+    banner.classList.remove('turn-change-feedback');
+    void banner.offsetWidth;
+    banner.classList.add('turn-change-feedback');
+  }
+
+  window.setTimeout(()=>{
+    previousPlayer?.classList.remove('turn-ending-feedback');
+    nextPlayer?.classList.remove('turn-start-feedback');
+    banner?.classList.remove('turn-change-feedback');
+  },700);
 }
 
 function completeAction(){
