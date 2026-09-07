@@ -1,13 +1,24 @@
-Splendor v3.28 – Multi-Noble Choice
+Splendor v3.29 – Rules Audit Fixes
 
-Based directly on v3.27.
+Based directly on v3.28.
 
-New:
-- If multiple nobles are simultaneously eligible, the game enters a persistent noble-selection mode.
-- The player selects one noble without immediately claiming it.
-- A fixed bottom confirmation bar remains visible while scrolling, so the player can inspect all player panels/cards before confirming.
-- The selected noble is highlighted; other choices are dimmed.
-- The choice is only claimed after “Választás véglegesítése”.
-- If only one noble is eligible, the existing automatic acquisition behavior remains unchanged.
+Fixes found during gameplay-rule testing:
+- A turn that leaves the player with more than 10 tokens now correctly stays on the same player until the required token discard is completed.
+- Token-taking, reserving and card-purchasing actions no longer advance the turn while the discard step is pending.
+- End-of-turn noble selection correctly blocks turn advancement while a multi-noble choice is pending.
+- Action functions are guarded after the game has ended.
 
-No other layout or gameplay systems were intentionally changed.
+Validated with synthetic gameplay tests covering:
+- 10-token limit and discard flow
+- identical-token bank requirement
+- hidden reservation and gold handling
+- 3-card reservation limit
+- card affordability/payment with bonuses and gold
+- 15-point end-game trigger and final round
+- tie-break by number of purchased development cards
+- multi-noble selection persistence
+- single eligible noble auto-acquisition
+- saved multi-noble choice reload
+- no actions after game over
+
+No intentional UI redesign or unrelated gameplay change.

@@ -260,14 +260,17 @@ function endTurn(){
 
   if(totalTokens(p)>10){
     showDiscard();
-    return;
+    return false;
   }
 
   claimNoble(p);
 
-  if(!state.nobleChoice){
-    checkEnd();
+  if(state.nobleChoice){
+    return false;
   }
+
+  checkEnd();
+  return true;
 }
 
 function checkEnd(){
@@ -449,6 +452,7 @@ function animateTokenTransfer(playerId, colors){
 }
 
 function take3(colors){
+  if(state.winner) return;
   const p=state.players[state.turn];
 
   if(
@@ -481,14 +485,13 @@ function take3(colors){
   selectedAction=null;
   animateTokenTransfer(p.id, colors);
 
-  endTurn();
-
-  if(!state.nobleChoice){
+  if(endTurn()){
     advance();
   }
 }
 
 function take2(c){
+  if(state.winner) return;
   const p=state.players[state.turn];
 
   if(state.bank[c]<4){
@@ -507,9 +510,7 @@ function take2(c){
   selectedAction=null;
   animateTokenTransfer(p.id, [c]);
 
-  endTurn();
-
-  if(!state.nobleChoice){
+  if(endTurn()){
     advance();
   }
 }
@@ -552,6 +553,7 @@ function animateReserveFeedback(playerId, bonus, gotGold){
 }
 
 function reserve(card,t,hidden=false){
+  if(state.winner) return;
   const p=state.players[state.turn];
 
   if(p.reserved.length>=3){
@@ -611,9 +613,7 @@ function reserve(card,t,hidden=false){
 
   selectedAction=null;
 
-  endTurn();
-
-  if(!state.nobleChoice){
+  if(endTurn()){
     advance();
   }
 
@@ -663,6 +663,7 @@ function animateCardPurchaseFeedback(playerId, bonus, points){
 }
 
 function buy(card,source,t,idx){
+  if(state.winner) return;
   const p=state.players[state.turn];
   const pay=paymentFor(p,card);
 
@@ -711,7 +712,9 @@ function buy(card,source,t,idx){
 
   selectedAction=null;
 
-  endTurn();
+  if(endTurn()){
+    advance();
+  }
 
   if(pendingCardPurchaseFeedback){
     const feedback=pendingCardPurchaseFeedback;
@@ -836,9 +839,7 @@ function showDiscard(){
       state.bank[c]+=n;
     }
 
-    endTurn();
-
-    if(!state.nobleChoice){
+    if(endTurn()){
       advance();
     }
   };
