@@ -1,5 +1,5 @@
-const CACHE_NAME="splendor-v3.30";
-const APP_SHELL = ['./', './app.js', './style.css'];
+const CACHE_NAME="splendor-v3.31";
+const APP_SHELL = ['./', './app.js', './style.css', './data.js'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -25,7 +25,7 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
 
   // App shell: network first so GitHub Pages updates are picked up quickly.
-  const isShell = url.pathname.endsWith('/app.js') || url.pathname.endsWith('/style.css') || url.pathname.endsWith('/');
+  const isShell = url.pathname.endsWith('/app.js') || url.pathname.endsWith('/style.css') || url.pathname.endsWith('/data.js') || url.pathname.endsWith('/');
   if (isShell) {
     event.respondWith(
       fetch(event.request).then((response) => {

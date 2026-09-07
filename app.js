@@ -5,6 +5,7 @@ const ICON={black:"●",white:"●",red:"●",blue:"●",green:"●",gold:"★"}
 let state=null, selectedAction=null, selectedColors=[];
 let pendingReserveFeedback=null;
 let pendingCardPurchaseFeedback=null;
+let selectionPreviewLock=false;
 
 function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -1344,10 +1345,20 @@ function renderTake2(){
 }
 
 function previewCardSelection(el, onConfirm){
-  if(!el || el.classList.contains("selection-preview")) return;
+  if(!el || el.classList.contains("selection-preview") || selectionPreviewLock) return;
 
   const row=el.closest(".card-row");
-  if(!row) return onConfirm();
+  if(!row){
+    onConfirm();
+    return;
+  }
+
+  // The preview is asynchronous. Lock the selection so two rapid taps
+  // cannot queue two purchases/reservations in the same turn, and so an
+  // action change during the 220ms feedback window cannot leave a stale
+  // callback behind.
+  selectionPreviewLock=true;
+  document.querySelectorAll(".action-grid button").forEach(b=>b.disabled=true);
 
   row.classList.add("has-selection-preview");
   row.querySelectorAll(".card").forEach(card=>{
@@ -1361,6 +1372,7 @@ function previewCardSelection(el, onConfirm){
     row.querySelectorAll(".card").forEach(card=>{
       card.classList.remove("selection-dim","selection-preview");
     });
+    selectionPreviewLock=false;
     onConfirm();
   },220);
 }

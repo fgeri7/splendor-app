@@ -1,23 +1,17 @@
-Splendor v3.30 – Rules Audit Fixes
+Splendor v3.31 – Rules Audit Fixes
 
-Based directly on v3.29.
+Based directly on v3.30.
 
-Fixes found during the continued rules audit:
-- Fixed a card-purchase turn-advance bug that could advance the game twice after a normal purchase.
-- Implemented the official 1- or 2-token version of the "take 3 different colors" action when fewer than 3 different colors are available in the bank.
-- Fixed end-game tie handling: equal points are resolved by fewest purchased development cards; if still tied, the players share the victory.
-- Updated the game-over overlay and turn banner to represent shared victories.
-- Removed a duplicated turn-change animation call.
-- Cleaned up duplicated markup in the multi-noble selection panel.
+Fixes found during continued audit:
+- Prevented rapid double-tap card selection from queuing multiple asynchronous purchase/reserve callbacks in the same turn.
+- Temporarily locks the action buttons during the short card-selection feedback animation, preventing stale callbacks after an action change.
+- Added data.js to the service-worker app shell so the game data is available to the PWA cache for offline reloads.
 
 Retested:
-- normal token actions advance exactly once
-- normal card purchase advances exactly once
-- 1/2/3 different-color token taking
-- 10-token discard flow
-- 15-point final-round trigger
-- fewest-card tie-break
-- exact tie after tie-break -> shared victory
-- multi-noble selection
+- rapid double card selection -> exactly one callback
+- selection lock releases after the 220ms preview
+- action buttons are disabled during the preview
+- JavaScript syntax check passes
+- service-worker cache version updated to v3.31
 
-No intentional visual redesign. Existing v3.29 UI and approved interaction behavior are preserved.
+No intentional visual redesign. Existing approved UI and gameplay behavior are preserved.
