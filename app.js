@@ -937,14 +937,22 @@ function renderGameOverOverlay(){
           </div>
         `).join("")}
       </div>
-      <button class="primary wide game-over-new" type="button" data-game-over-new>Új játék</button>
+      <div class="game-over-actions">
+        <button class="ghost game-over-menu" type="button" data-game-over-menu>Főmenü</button>
+        <button class="primary game-over-new" type="button" data-game-over-new>Új játék</button>
+      </div>
     </div>
   `;
 
   document.body.appendChild(overlay);
   overlay.querySelector("[data-game-over-new]").onclick=()=>{
-    document.getElementById("newBtn")?.click();
+    showConfirm(
+      "Új játék",
+      "Biztosan új játékot kezdesz? A jelenlegi játék mentése törlődik.",
+      resetToMenu
+    );
   };
+  overlay.querySelector("[data-game-over-menu]").onclick=resetToMenu;
 }
 
 function render(){
@@ -1442,6 +1450,18 @@ function preventPullToRefresh(){
   document.body.style.overscrollBehaviorY="none";
 }
 
+function resetToMenu(){
+  document.getElementById("gameOverOverlay")?.remove();
+  document.querySelectorAll(".app-modal-backdrop").forEach(x=>x.remove());
+  localStorage.removeItem("splendor-prototype");
+  state=null;
+  selectedAction=null;
+  selectedColors=[];
+  pendingReserveFeedback=null;
+  pendingCardPurchaseFeedback=null;
+  setup();
+}
+
 function setup(){
   preventTextSelectionAndContextMenu();
   setupView.classList.remove("hidden");
@@ -1542,13 +1562,7 @@ document.getElementById(
   showConfirm(
     "Új játék",
     "Biztosan új játékot kezdesz? A jelenlegi játék mentése törlődik.",
-    ()=>{
-      localStorage.removeItem("splendor-prototype");
-      state=null;
-      selectedAction=null;
-      selectedColors=[];
-      setup();
-    }
+    resetToMenu
   );
 };
 

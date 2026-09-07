@@ -1440,7 +1440,10 @@ button:focus-visible,
 .game-over-result{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:8px;padding:10px 11px;border-radius:11px;background:#0f1929;border:1px solid rgba(255,255,255,.06)}
 .game-over-result.winner{border-color:rgba(230,184,77,.42);background:rgba(230,184,77,.09)}
 .result-place{font-size:17px;text-align:center}.result-name{font-weight:850;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.game-over-result strong{font-size:12px;color:var(--muted)}
-.game-over-new{margin-top:16px}
+.game-over-actions{display:flex;gap:10px;margin-top:16px}
+.game-over-actions button{flex:1;min-width:0}
+.game-over-new{margin-top:0}
+@media(max-width:480px){.game-over-actions{gap:8px}.game-over-actions button{font-size:13px}}
 @keyframes gameOverFade{from{opacity:0}to{opacity:1}}
 @keyframes gameOverCard{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-width:480px){.game-over-overlay{padding:12px}.game-over-card{padding:20px 15px 16px;border-radius:18px}.game-over-card h2{font-size:22px}.game-over-result{grid-template-columns:32px minmax(0,1fr) auto;padding:9px}.game-over-winner-score strong{font-size:34px}}
