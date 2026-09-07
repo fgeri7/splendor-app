@@ -1360,3 +1360,26 @@ button:focus-visible,
     animation:none!important;
   }
 }
+
+/* v3.22 card selection preview: visual-only, without changing card layout. */
+.card-row.has-selection-preview .card.selection-dim{
+  opacity:.38 !important;
+  filter:saturate(.65);
+  transform:scale(.985);
+}
+.card-row .card.selection-preview{
+  opacity:1 !important;
+  z-index:5;
+  transform:translateY(-5px) scale(1.025) !important;
+  outline:2px solid var(--gold);
+  outline-offset:2px;
+  box-shadow:0 0 0 4px rgba(230,184,77,.14),0 12px 24px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.16);
+  filter:none;
+  transition:transform .16s ease-out,box-shadow .16s ease-out,opacity .16s ease-out,filter .16s ease-out;
+}
+.card-row.has-selection-preview .card:not(.selection-preview){
+  transition:transform .16s ease-out,opacity .16s ease-out,filter .16s ease-out;
+}
+@media (prefers-reduced-motion:reduce){
+  .card-row .card.selection-preview,.card-row.has-selection-preview .card:not(.selection-preview){transition:none}
+}

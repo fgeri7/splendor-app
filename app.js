@@ -1132,6 +1132,28 @@ function renderTake2(){
   });
 }
 
+function previewCardSelection(el, onConfirm){
+  if(!el || el.classList.contains("selection-preview")) return;
+
+  const row=el.closest(".card-row");
+  if(!row) return onConfirm();
+
+  row.classList.add("has-selection-preview");
+  row.querySelectorAll(".card").forEach(card=>{
+    if(card!==el) card.classList.add("selection-dim");
+  });
+
+  el.classList.add("selection-preview");
+
+  window.setTimeout(()=>{
+    row.classList.remove("has-selection-preview");
+    row.querySelectorAll(".card").forEach(card=>{
+      card.classList.remove("selection-dim","selection-preview");
+    });
+    onConfirm();
+  },220);
+}
+
 function renderReserve(){
   const p=state.players[state.turn];
 
@@ -1173,7 +1195,7 @@ function renderReserve(){
       const d=document.createElement("div");
       d.innerHTML=cardHtml(c);
       const el=d.firstElementChild;
-      el.onclick=()=>reserve(c,t,false);
+      el.onclick=()=>previewCardSelection(el,()=>reserve(c,t,false));
       wrap.appendChild(el);
     });
   }
@@ -1213,7 +1235,11 @@ function renderBuy(){
           : ".42";
 
       el.onclick=()=>{
-        buy(c,"market",t,idx);
+        if(!affordability(p,c)){
+          buy(c,"market",t,idx);
+          return;
+        }
+        previewCardSelection(el,()=>buy(c,"market",t,idx));
       };
 
       wrap.appendChild(el);
@@ -1231,7 +1257,11 @@ function renderBuy(){
       "2px dashed #e6b84d";
 
     el.onclick=()=>{
-      buy(c,"reserved");
+      if(!affordability(p,c)){
+        buy(c,"reserved");
+        return;
+      }
+      previewCardSelection(el,()=>buy(c,"reserved"));
     };
 
     wrap.appendChild(el);
