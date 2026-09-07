@@ -1,15 +1,15 @@
-Splendor v3.18
+Splendor v3.19
 
-Based directly on the accepted v3.15 files.
+Based directly on the accepted v3.18 files.
 
 Single-purpose update:
-- Added restrained interaction/motion polish for development cards, noble cards, bank tokens, action controls and buttons.
-- Replaced the impractical bank-to-player flight with local token-selection feedback and a short player-panel token-gain pulse.
-- Added keyboard focus visibility.
-- Added a subtle active-player panel highlight.
-- Added prefers-reduced-motion support.
+- Added local visual feedback after purchasing a development card.
+- The current player's panel briefly pulses after the purchase.
+- The score, total owned-card counter and purchased card's colour bonus counter briefly pop to make the change easy to notice.
+- No long-distance card animation is used; the feedback remains visible even when the market and player panel are separated by mobile scrolling.
 
-Preserved from v3.15:
+Preserved from v3.18:
+- Token gain feedback and selection animation.
 - Uniform development-card heights across all three tiers.
 - Separate point and resource-cost zones.
 - Player-panel token/card layout.
@@ -17,4 +17,4 @@ Preserved from v3.15:
 - Noble visual refinement.
 - Landscape-first layout and existing scroll behavior.
 
-No gameplay, data, layout structure, token design, player-panel arrangement, card sizing, or scroll logic was changed. The v3.17 long-distance token flight was removed because the bank and action area are separated by mobile scrolling.
+No gameplay rules, data, layout structure, token design, card sizing, or scroll logic was changed.

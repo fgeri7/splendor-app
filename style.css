@@ -1271,3 +1271,42 @@ button:focus-visible,
     animation:none!important;
   }
 }
+
+/* --- v3.19 — card purchase feedback ---
+/* Local feedback only. No layout, sizing, scrolling or gameplay changes. */
+.player.card-purchase-feedback{
+  animation:card-panel-pulse .52s ease-out both !important;
+}
+
+@keyframes card-panel-pulse{
+  0%{
+    box-shadow:0 0 0 1px rgba(230,184,77,.20),0 0 0 rgba(230,184,77,0);
+  }
+  45%{
+    box-shadow:0 0 0 2px rgba(230,184,77,.72),0 0 20px rgba(230,184,77,.18);
+  }
+  100%{
+    box-shadow:0 0 0 1px rgba(230,184,77,.20),0 0 0 rgba(230,184,77,0);
+  }
+}
+
+.score.card-purchase-pop,
+.owned-card-label.card-purchase-pop,
+.mini-card-bonus.card-purchase-pop{
+  animation:card-purchase-pop .46s cubic-bezier(.2,.8,.25,1) both;
+}
+
+@keyframes card-purchase-pop{
+  0%{transform:scale(1);filter:brightness(1)}
+  45%{transform:scale(1.16);filter:brightness(1.16)}
+  100%{transform:scale(1);filter:brightness(1)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .player.card-purchase-feedback,
+  .score.card-purchase-pop,
+  .owned-card-label.card-purchase-pop,
+  .mini-card-bonus.card-purchase-pop{
+    animation:none!important;
+  }
+}

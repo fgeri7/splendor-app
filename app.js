@@ -3,6 +3,7 @@ const ALL=["black","white","red","blue","green","gold"];
 const LABEL={black:"Ónix",white:"Gyémánt",red:"Rubin",blue:"Zafír",green:"Smaragd",gold:"Arany"};
 const ICON={black:"●",white:"●",red:"●",blue:"●",green:"●",gold:"★"};
 let state=null, selectedAction=null, selectedColors=[];
+let pendingCardPurchaseFeedback=null;
 
 function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -490,6 +491,40 @@ function reserve(card,t,hidden=false){
   }
 }
 
+function animateCardPurchaseFeedback(playerId, bonus, points){
+  requestAnimationFrame(()=>{
+    const panel=document.querySelector(
+      `.player .mini-token[data-player-id="${playerId}"]`
+    )?.closest(".player");
+
+    if(!panel) return;
+
+    const score=panel.querySelector(".score");
+    const owned=panel.querySelector(".owned-card-label");
+    const bonusCard=panel.querySelector(`.mini-card-bonus[data-card-bonus="${bonus}"]`);
+
+    [score, owned, bonusCard].filter(Boolean).forEach(el=>{
+      el.classList.remove("card-purchase-pop");
+      void el.offsetWidth;
+      el.classList.add("card-purchase-pop");
+      el.addEventListener(
+        "animationend",
+        ()=>el.classList.remove("card-purchase-pop"),
+        {once:true}
+      );
+    });
+
+    panel.classList.remove("card-purchase-feedback");
+    void panel.offsetWidth;
+    panel.classList.add("card-purchase-feedback");
+    panel.addEventListener(
+      "animationend",
+      ()=>panel.classList.remove("card-purchase-feedback"),
+      {once:true}
+    );
+  });
+}
+
 function buy(card,source,t,idx){
   const p=state.players[state.turn];
   const pay=paymentFor(p,card);
@@ -507,6 +542,13 @@ function buy(card,source,t,idx){
 
   p.cards.push(card);
   p.points+=card.points;
+
+  // Remember the purchase so the feedback can be applied after render().
+  pendingCardPurchaseFeedback={
+    playerId:p.id,
+    bonus:card.bonus,
+    points:card.points
+  };
 
   if(source==="market"){
     state.market[t].splice(idx,1);
@@ -533,6 +575,16 @@ function buy(card,source,t,idx){
   selectedAction=null;
 
   endTurn();
+
+  if(pendingCardPurchaseFeedback){
+    const feedback=pendingCardPurchaseFeedback;
+    pendingCardPurchaseFeedback=null;
+    animateCardPurchaseFeedback(
+      feedback.playerId,
+      feedback.bonus,
+      feedback.points
+    );
+  }
 
   if(!state.nobleChoice){
     advance();
@@ -848,7 +900,7 @@ function render(){
           <span class="summary-label">Kártyák</span>
           ${
             COLORS.map(c=>`
-              <span class="mini-card-bonus mini-card-${c}" title="${LABEL[c]} kártyák: ${bonusCount(x,c)}">
+              <span class="mini-card-bonus mini-card-${c}" data-card-bonus="${c}" title="${LABEL[c]} kártyák: ${bonusCount(x,c)}">
                 <i></i><b>${bonusCount(x,c)}</b>
               </span>
             `).join("")
