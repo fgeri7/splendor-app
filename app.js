@@ -6,6 +6,7 @@ let state=null, selectedAction=null, selectedColors=[];
 let pendingReserveFeedback=null;
 let pendingCardPurchaseFeedback=null;
 let selectionPreviewLock=false;
+let selectionPreviewGeneration=0;
 
 function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -1358,6 +1359,7 @@ function previewCardSelection(el, onConfirm){
   // action change during the 220ms feedback window cannot leave a stale
   // callback behind.
   selectionPreviewLock=true;
+  const previewGeneration=++selectionPreviewGeneration;
   document.querySelectorAll(".action-grid button").forEach(b=>b.disabled=true);
 
   row.classList.add("has-selection-preview");
@@ -1368,6 +1370,7 @@ function previewCardSelection(el, onConfirm){
   el.classList.add("selection-preview");
 
   window.setTimeout(()=>{
+    if(previewGeneration!==selectionPreviewGeneration || !state) return;
     row.classList.remove("has-selection-preview");
     row.querySelectorAll(".card").forEach(card=>{
       card.classList.remove("selection-dim","selection-preview");
@@ -1565,7 +1568,10 @@ function preventPullToRefresh(){
 }
 
 function resetToMenu(){
+  selectionPreviewGeneration++;
+  selectionPreviewLock=false;
   document.getElementById("gameOverOverlay")?.remove();
+  document.getElementById("nobleChoiceBar")?.remove();
   document.querySelectorAll(".app-modal-backdrop").forEach(x=>x.remove());
   localStorage.removeItem("splendor-prototype");
   state=null;
