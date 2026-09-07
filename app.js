@@ -206,6 +206,46 @@ function takeNoble(p,n){
   log(
     `<b>${p.name}</b> megszerzett egy nemest (+${n.points} pont).`
   );
+
+  animateNobleGainFeedback(p.id,n.points);
+}
+
+function animateNobleGainFeedback(playerId,points){
+  requestAnimationFrame(()=>{
+    const panel=document.querySelector(`[data-player-id="${playerId}"]`);
+    if(!panel) return;
+
+    panel.classList.remove("noble-gain-feedback");
+    void panel.offsetWidth;
+    panel.classList.add("noble-gain-feedback");
+
+    const score=panel.querySelector(".score");
+    if(score){
+      score.classList.remove("noble-points-pop");
+      void score.offsetWidth;
+      score.classList.add("noble-points-pop");
+      setTimeout(()=>score.classList.remove("noble-points-pop"),650);
+    }
+
+    const nobleCount=panel.querySelector(".noble-stat");
+    if(nobleCount){
+      nobleCount.classList.remove("noble-count-pop");
+      void nobleCount.offsetWidth;
+      nobleCount.classList.add("noble-count-pop");
+      setTimeout(()=>nobleCount.classList.remove("noble-count-pop"),650);
+    }
+
+    const nobles=panel.querySelectorAll(".mini-noble");
+    const last=nobles[nobles.length-1];
+    if(last){
+      last.classList.remove("noble-card-pop");
+      void last.offsetWidth;
+      last.classList.add("noble-card-pop");
+      setTimeout(()=>last.classList.remove("noble-card-pop"),700);
+    }
+
+    setTimeout(()=>panel.classList.remove("noble-gain-feedback"),700);
+  });
 }
 
 function endTurn(){
