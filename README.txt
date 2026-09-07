@@ -1,8 +1,13 @@
-Splendor Digitális Játékmester – v3.26
+Splendor v3.28 – Multi-Noble Choice
 
-v3.26: Game Over javítás + Főmenü
-- A játék vége képernyőn a Főmenü gomb visszavisz a kezdő/főmenü képernyőre.
-- Az eredményablak Új játék gombja most megfelelően kezeli a megerősítő ablakot, majd valóban új játékot indít.
-- A játék vége overlay és a megerősítő modal megfelelően bezáródik reset után.
-- A v3.25 meglévő UI-jához és játékmenetéhez nem nyúltunk más pontokon.
-- Service worker cache: v3.26.
+Based directly on v3.27.
+
+New:
+- If multiple nobles are simultaneously eligible, the game enters a persistent noble-selection mode.
+- The player selects one noble without immediately claiming it.
+- A fixed bottom confirmation bar remains visible while scrolling, so the player can inspect all player panels/cards before confirming.
+- The selected noble is highlighted; other choices are dimmed.
+- The choice is only claimed after “Választás véglegesítése”.
+- If only one noble is eligible, the existing automatic acquisition behavior remains unchanged.
+
+No other layout or gameplay systems were intentionally changed.

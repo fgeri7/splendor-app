@@ -1448,3 +1448,49 @@ button:focus-visible,
 @keyframes gameOverCard{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-width:480px){.game-over-overlay{padding:12px}.game-over-card{padding:20px 15px 16px;border-radius:18px}.game-over-card h2{font-size:22px}.game-over-result{grid-template-columns:32px minmax(0,1fr) auto;padding:9px}.game-over-winner-score strong{font-size:34px}}
 @media(prefers-reduced-motion:reduce){.game-over-overlay,.game-over-card{animation:none!important}}
+
+/* v3.27 — noble selection feedback: visual-only before the choice is applied. */
+#nobleChoices.has-noble-selection .choice.noble-choice-dim{
+  opacity:.38 !important;
+  filter:saturate(.65);
+  transform:scale(.985);
+}
+#nobleChoices .choice.noble-choice-selected{
+  position:relative;
+  z-index:2;
+  transform:translateY(-3px) scale(1.02);
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(230,184,77,.14),0 8px 18px rgba(0,0,0,.25);
+  background:linear-gradient(135deg,#263a56,#17243a);
+  animation:noble-choice-pick .42s ease-out both;
+}
+@keyframes noble-choice-pick{
+  0%{filter:brightness(1);}
+  45%{filter:brightness(1.14);}
+  100%{filter:brightness(1.04);}
+}
+@media (prefers-reduced-motion:reduce){
+  #nobleChoices .choice.noble-choice-selected{animation:none;transition:none}
+}
+
+
+
+/* v3.28 — persistent noble choice mode */
+.noble-choice-panel{margin-top:12px;padding:14px;border:1px solid rgba(230,184,77,.32);border-radius:14px;background:linear-gradient(145deg,rgba(230,184,77,.08),rgba(15,25,41,.96));}
+.noble-choice-heading{display:flex;flex-direction:column;gap:5px;color:var(--text);}
+.noble-choice-heading strong{font-size:14px;color:var(--gold);}
+.noble-choice-heading span{font-size:12px;color:var(--muted);line-height:1.45;}
+.noble-choice-option{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:150px;text-align:left;transition:.18s;}
+.noble-choice-title{font-weight:900;}
+.noble-choice-req{display:flex;gap:4px;flex-wrap:wrap;}
+#nobleChoices.has-noble-selection .choice.noble-choice-dim{opacity:.38!important;filter:saturate(.65);transform:scale(.985);}
+#nobleChoices .choice.noble-choice-selected{position:relative;z-index:2;transform:translateY(-3px) scale(1.02);border-color:var(--gold);box-shadow:0 0 0 3px rgba(230,184,77,.14),0 8px 18px rgba(0,0,0,.25);background:linear-gradient(135deg,#263a56,#17243a);animation:noble-choice-pick .42s ease-out both;}
+.noble-choice-bar{position:fixed;left:0;right:0;bottom:0;z-index:45;padding:9px 12px calc(9px + env(safe-area-inset-bottom));background:rgba(11,18,32,.96);border-top:1px solid rgba(230,184,77,.35);box-shadow:0 -10px 30px rgba(0,0,0,.32);backdrop-filter:blur(14px);}
+.noble-choice-bar-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px;}
+.noble-choice-bar-text{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px;}
+.noble-choice-bar-kicker{font-size:10px;color:var(--gold);font-weight:900;letter-spacing:.4px;}
+.noble-choice-bar-text strong{font-size:12px;line-height:1.3;color:var(--text);overflow:hidden;text-overflow:ellipsis;}
+.noble-choice-confirm{flex:0 0 auto;margin:0;padding:10px 13px;}
+.noble-choice-confirm:disabled{opacity:.42;cursor:not-allowed;filter:saturate(.5);}
+@media(max-width:480px){.noble-choice-bar{padding-left:9px;padding-right:9px}.noble-choice-bar-inner{gap:8px}.noble-choice-bar-text strong{font-size:11px}.noble-choice-confirm{font-size:11px;padding:9px 10px}.noble-choice-option{min-width:135px}}
+@media(prefers-reduced-motion:reduce){#nobleChoices .choice.noble-choice-selected{animation:none;transition:none}}

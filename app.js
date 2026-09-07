@@ -196,7 +196,13 @@ function claimNoble(p){
     return;
   }
 
-  showNobleChoice(eligible);
+  state.nobleChoice={
+    playerId:p.id,
+    eligibleIds:eligible.map(n=>n.id),
+    selectedId:null
+  };
+  showNobleChoice();
+  save();
 }
 
 function takeNoble(p,n){
@@ -840,41 +846,98 @@ function showDiscard(){
   refresh();
 }
 
-function showNobleChoice(eligible){
-  const p=state.players[state.turn];
+function showNobleChoice(){
+  const choice=state.nobleChoice;
+  if(!choice) return;
 
-  state.nobleChoice=true;
+  const p=state.players.find(x=>x.id===choice.playerId) || state.players[state.turn];
+  const eligible=state.nobles.filter(n=>
+    choice.eligibleIds.includes(n.id) && !n.claimedBy
+  );
 
   actionArea.innerHTML=`
-    <div class="panel" style="margin:0;background:#0f1929">
-      <b>${p.name}</b>, több nemes feltétele teljesül.
-      Válassz egyet:
+    <div class="noble-choice-panel">
+      <div class="noble-choice-heading">
+        <strong>👑 ${p.name}, több nemes közül választhatsz</strong>
+        <span>Válassz egyet, majd görgess nyugodtan körbe a játékosok és kártyáik megtekintéséhez.</span>
+      </div>
+      <div class="choice-grid" id="nobleChoices"></div>
     </div>
-
-    <div class="choice-grid" id="nobleChoices"></div>
   `;
+
+  const grid=document.getElementById("nobleChoices");
 
   eligible.forEach(n=>{
     const b=document.createElement("button");
-
-    b.className="choice";
-
-    b.innerHTML=
-      `+${n.points} pont · ${fmtReq(n.req)}`;
+    b.type="button";
+    b.className="choice noble-choice-option";
+    if(choice.selectedId===n.id) b.classList.add("noble-choice-selected");
+    b.innerHTML=`
+      <span class="noble-choice-title">Nemes · ${n.points} pont</span>
+      <span class="noble-choice-req">${fmtReq(n.req)}</span>
+    `;
 
     b.onclick=()=>{
-      takeNoble(p,n);
+      if(!state.nobleChoice) return;
+      state.nobleChoice.selectedId=n.id;
 
-      delete state.nobleChoice;
+      grid.querySelectorAll(".choice").forEach(x=>{
+        x.classList.toggle("noble-choice-selected",x===b);
+        x.classList.toggle("noble-choice-dim",x!==b);
+      });
 
-      checkEnd();
-      advance();
+      renderNobleChoiceBar();
     };
 
-    document
-      .getElementById("nobleChoices")
-      .appendChild(b);
+    grid.appendChild(b);
   });
+
+  renderNobleChoiceBar();
+}
+
+function renderNobleChoiceBar(){
+  document.getElementById("nobleChoiceBar")?.remove();
+
+  const choice=state?.nobleChoice;
+  if(!choice) return;
+
+  const p=state.players.find(x=>x.id===choice.playerId);
+  const selected=state.nobles.find(n=>n.id===choice.selectedId);
+  const bar=document.createElement("div");
+  bar.id="nobleChoiceBar";
+  bar.className="noble-choice-bar";
+  bar.innerHTML=`
+    <div class="noble-choice-bar-inner">
+      <div class="noble-choice-bar-text">
+        <span class="noble-choice-bar-kicker">👑 ${p?.name || "Játékos"} · Nemesválasztás</span>
+        <strong>${selected ? `Kiválasztva: ${selected.points} pont · ${fmtReq(selected.req)}` : "Válassz egy nemest a fenti lehetőségek közül"}</strong>
+      </div>
+      <button class="primary noble-choice-confirm" type="button" ${selected ? "" : "disabled"}>
+        Választás véglegesítése
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(bar);
+
+  const confirm=bar.querySelector(".noble-choice-confirm");
+  confirm.onclick=finalizeNobleChoice;
+}
+
+function finalizeNobleChoice(){
+  const choice=state?.nobleChoice;
+  if(!choice?.selectedId) return;
+
+  const p=state.players.find(x=>x.id===choice.playerId);
+  const noble=state.nobles.find(n=>n.id===choice.selectedId && !n.claimedBy);
+  if(!p || !noble) return;
+
+  takeNoble(p,noble);
+  delete state.nobleChoice;
+  document.getElementById("nobleChoiceBar")?.remove();
+
+  checkEnd();
+  advance();
 }
 
 function cardHtml(c,extra=""){
@@ -1119,7 +1182,10 @@ function render(){
 
   renderGameOverOverlay();
 
-  if(state.nobleChoice) return;
+  if(state.nobleChoice){
+    showNobleChoice();
+    return;
+  }
 
   actionArea.innerHTML="";
 
