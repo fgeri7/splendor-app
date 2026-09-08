@@ -49,6 +49,7 @@ function initialState(names){
     endTriggerIndex:null,
     winner:null,
     winnerIds:[],
+    discardChoice:null,
     bank,
     decks,
     market,
@@ -261,7 +262,14 @@ function animateNobleGainFeedback(playerId,points){
 function endTurn(){
   const p=state.players[state.turn];
 
+  if(state.discardChoice){
+    showDiscard();
+    return false;
+  }
+
   if(totalTokens(p)>10){
+    state.discardChoice={playerId:p.id};
+    save();
     showDiscard();
     return false;
   }
@@ -462,11 +470,15 @@ function animateTokenTransfer(playerId, colors){
 }
 
 function take3(colors){
-  if(state.winner) return;
+  if(state.winner || state.nobleChoice || state.discardChoice) return;
   const p=state.players[state.turn];
 
   const availableColors=COLORS.filter(c=>state.bank[c]>0).length;
   const requiredColors=Math.min(3,availableColors);
+
+  if(requiredColors===0){
+    return toast("A bankban nincs elvehető színes zseton.");
+  }
 
   if(
     colors.length!==requiredColors ||
@@ -506,7 +518,7 @@ function take3(colors){
 }
 
 function take2(c){
-  if(state.winner) return;
+  if(state.winner || state.nobleChoice || state.discardChoice) return;
   const p=state.players[state.turn];
 
   if(state.bank[c]<4){
@@ -568,7 +580,7 @@ function animateReserveFeedback(playerId, bonus, gotGold){
 }
 
 function reserve(card,t,hidden=false){
-  if(state.winner) return;
+  if(state.winner || state.nobleChoice || state.discardChoice) return;
   const p=state.players[state.turn];
 
   if(p.reserved.length>=3){
@@ -678,7 +690,7 @@ function animateCardPurchaseFeedback(playerId, bonus, points){
 }
 
 function buy(card,source,t,idx){
-  if(state.winner) return;
+  if(state.winner || state.nobleChoice || state.discardChoice) return;
   const p=state.players[state.turn];
   const pay=paymentFor(p,card);
 
@@ -744,6 +756,9 @@ function buy(card,source,t,idx){
 
 function showDiscard(){
   const p=state.players[state.turn];
+  if(!state.discardChoice || state.discardChoice.playerId!==p.id){
+    state.discardChoice={playerId:p.id};
+  }
   const discard={};
 
   const refresh=()=>{
@@ -849,6 +864,8 @@ function showDiscard(){
       p.tokens[c]-=n;
       state.bank[c]+=n;
     }
+
+    delete state.discardChoice;
 
     if(endTurn()){
       advance();
@@ -1206,6 +1223,11 @@ function render(){
 
   renderGameOverOverlay();
 
+  if(state.discardChoice){
+    showDiscard();
+    return;
+  }
+
   if(state.nobleChoice){
     showNobleChoice();
     return;
@@ -1215,12 +1237,18 @@ function render(){
 
   document
     .querySelectorAll(".action-grid button")
-    .forEach(b=>
+    .forEach(b=>{
       b.classList.toggle(
         "active",
         b.dataset.action===selectedAction
-      )
-    );
+      );
+      b.disabled=!!(
+        state.winner ||
+        state.nobleChoice ||
+        state.discardChoice ||
+        selectionPreviewLock
+      );
+    });
 
   if(selectedAction==="take3")
     renderTake3();
@@ -1300,11 +1328,13 @@ function renderTake3(){
   const availableColors=COLORS.filter(c=>state.bank[c]>0).length;
   const requiredColors=Math.min(3,availableColors);
   const confirm=document.getElementById("take3confirm");
-  confirm.disabled=selectedColors.length!==requiredColors;
+  confirm.disabled=requiredColors===0 || selectedColors.length!==requiredColors;
   confirm.textContent=
     requiredColors===3
       ? "Zsetonok elvétele"
-      : `${requiredColors} zseton elvétele`;
+      : requiredColors===0
+        ? "Nincs elvehető zseton"
+        : `${requiredColors} zseton elvétele`;
   confirm.onclick=()=>{
     take3(selectedColors);
   };
@@ -1579,6 +1609,7 @@ function resetToMenu(){
   selectedColors=[];
   pendingReserveFeedback=null;
   pendingCardPurchaseFeedback=null;
+  document.querySelectorAll(".action-grid button").forEach(b=>b.disabled=false);
   setup();
 }
 
@@ -1703,6 +1734,7 @@ document
     b.onclick=()=>{
       if(state?.winner) return;
       if(state?.nobleChoice) return;
+      if(state?.discardChoice) return;
 
       selectedAction=
         selectedAction===b.dataset.action

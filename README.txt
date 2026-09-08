@@ -1,6 +1,6 @@
-Splendor v3.31 – Rules Audit Fixes
+Splendor v3.33 – Rules Audit Fixes
 
-Based directly on v3.30.
+Based directly on v3.32.
 
 Fixes found during continued audit:
 - Prevented rapid double-tap card selection from queuing multiple asynchronous purchase/reserve callbacks in the same turn.
@@ -12,6 +12,10 @@ Retested:
 - selection lock releases after the 220ms preview
 - action buttons are disabled during the preview
 - JavaScript syntax check passes
-- service-worker cache version updated to v3.31
+- service-worker cache version updated to v3.33
 
 No intentional visual redesign. Existing approved UI and gameplay behavior are preserved.
+
+- persistent discard state prevents bypassing the mandatory >10-token discard step and survives reload
+- zero-color take-3 edge case blocked
+- action controls are disabled during discard/noble-choice/selection preview and restored for a new game
