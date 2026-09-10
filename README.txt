@@ -1,21 +1,22 @@
-Splendor v3.33 – Rules Audit Fixes
+Splendor v3.34 – Rules & Robustness Fixes
 
-Based directly on v3.32.
+Based directly on the audited v3.33 working files. No intentional visual redesign.
 
-Fixes found during continued audit:
-- Prevented rapid double-tap card selection from queuing multiple asynchronous purchase/reserve callbacks in the same turn.
-- Temporarily locks the action buttons during the short card-selection feedback animation, preventing stale callbacks after an action change.
-- Added data.js to the service-worker app shell so the game data is available to the PWA cache for offline reloads.
+Fixes:
+- Enforced the Splendor rule that a player may claim at most ONE noble during a single turn. If multiple nobles become eligible, exactly one is selected; any remaining eligible noble can be claimed automatically on a later turn if it is still available.
+- Noble-choice finalization now verifies that the selected noble was actually part of the eligible choices for that turn.
+- Taking different-colour gems now follows the official edge case: with 3+ colours available, take exactly 3 different colours; with only 2 colours available, take 1 or 2 different colours; with only 1 colour available, take 1.
+- Added the zero-token pass only for the true deadlock case where no other legal action exists.
+- Hardened saved-game loading against malformed v2 state and migrated old saves with >10 tokens into mandatory discard mode.
+- Action buttons are visibly disabled while mandatory discard or noble choice is active.
+- Clearing the game log is now persisted across reloads.
+- Global text-selection/context-menu/drag listeners are installed only once.
+- Escaped player names when inserted into HTML to prevent HTML injection/XSS through a player name.
+- Noble selection is persisted immediately after choosing an option.
+- Service-worker cache bumped to v3.34.
 
-Retested:
-- rapid double card selection -> exactly one callback
-- selection lock releases after the 220ms preview
-- action buttons are disabled during the preview
-- JavaScript syntax check passes
-- service-worker cache version updated to v3.33
-
-No intentional visual redesign. Existing approved UI and gameplay behavior are preserved.
-
-- persistent discard state prevents bypassing the mandatory >10-token discard step and survives reload
-- zero-color take-3 edge case blocked
-- action controls are disabled during discard/noble-choice/selection preview and restored for a new game
+Validation:
+- JavaScript syntax check passes.
+- ZIP integrity check passes.
+- Existing v3.33 race/reset protections retained.
+- Existing approved visual/layout files are unchanged.

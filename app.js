@@ -8,6 +8,9 @@ let pendingCardPurchaseFeedback=null;
 let selectionPreviewLock=false;
 let selectionPreviewGeneration=0;
 
+// At most one noble may be claimed during a single turn.
+
+
 function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 
@@ -83,14 +86,61 @@ function save(){
   }
 }
 
+function escHtml(value){
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#39;");
+}
+
+function hasAnyLegalAction(p){
+  // Taking at least one available coloured gem is a legal token action.
+  if(COLORS.some(c=>state.bank[c]>0)) return true;
+
+  // Two of the same colour require at least four in the bank, so this
+  // branch is intentionally separate from the one-gem check above.
+  if(COLORS.some(c=>state.bank[c]>=4)) return true;
+
+  // Reserve from the market or blindly from a non-empty deck.
+  if(p.reserved.length<3){
+    if([1,2,3].some(t=>state.market[t].length>0)) return true;
+    if([1,2,3].some(t=>state.decks[t-1].length>0)) return true;
+  }
+
+  // Buy any visible or reserved card that is affordable.
+  if([1,2,3].some(t=>state.market[t].some(card=>affordability(p,card)))) return true;
+  if(p.reserved.some(card=>affordability(p,card))) return true;
+
+  return false;
+}
+
 function load(){
   try{
     const x=JSON.parse(localStorage.getItem("splendor-prototype"));
-    if(x?.version===2){
-      state=x;
-      return true;
+    if(!x || x.version!==2) return false;
+    if(!Array.isArray(x.players) || !x.players.length) return false;
+    if(!Number.isInteger(x.turn) || x.turn<0 || x.turn>=x.players.length) return false;
+    if(!Array.isArray(x.log) || !x.bank || !x.decks || !x.market || !Array.isArray(x.nobles)) return false;
+    for(const p of x.players){
+      if(!p || typeof p.id!=="string" || typeof p.name!=="string" || !p.tokens ||
+         !Array.isArray(p.cards) || !Array.isArray(p.reserved) || !Array.isArray(p.nobles)) return false;
+      if(ALL.some(c=>!Number.isFinite(p.tokens[c]) || p.tokens[c]<0)) return false;
     }
+    if(ALL.some(c=>!Number.isFinite(x.bank[c]) || x.bank[c]<0)) return false;
+    if([1,2,3].some(t=>!Array.isArray(x.decks[t-1]) || !Array.isArray(x.market[t]))) return false;
+    // Migrate old saves that predate the explicit per-turn noble marker.
+    x.nobleClaimedThisTurn=!!x.nobleClaimedThisTurn;
+    // Any saved state with >10 tokens must remain in mandatory discard mode.
+    const current=x.players[x.turn];
+    if(totalTokens(current)>10){
+      x.discardChoice=x.discardChoice || {playerId:current.id};
+    }
+    state=x;
+    return true;
   }catch(e){}
+  localStorage.removeItem("splendor-prototype");
   return false;
 }
 
@@ -186,6 +236,7 @@ function refill(t){
 }
 
 function claimNoble(p){
+  if(state.nobleClaimedThisTurn) return;
   const eligible=state.nobles.filter(n=>
     !n.claimedBy &&
     Object.entries(n.req).every(
@@ -210,15 +261,18 @@ function claimNoble(p){
 }
 
 function takeNoble(p,n){
+  if(state.nobleClaimedThisTurn) return false;
   n.claimedBy=p.id;
+  state.nobleClaimedThisTurn=true;
   p.nobles.push(n);
   p.points+=n.points;
 
   log(
-    `<b>${p.name}</b> megszerzett egy nemest (+${n.points} pont).`
+    `<b>${escHtml(p.name)}</b> megszerzett egy nemest (+${n.points} pont).`
   );
 
   animateNobleGainFeedback(p.id,n.points);
+  return true;
 }
 
 function animateNobleGainFeedback(playerId,points){
@@ -313,6 +367,8 @@ function advance(){
     state.round++;
   }
 
+  state.nobleClaimedThisTurn=false;
+
   /*
    * A játék akkor ér véget, amikor a 15 pontot
    * elérő játékos után minden játékos befejezte
@@ -342,8 +398,8 @@ function advance(){
 
     log(
       tiedWinners.length>1
-        ? `<b>${tiedWinners.map(p=>p.name).join(" és ")}</b> megosztotta a győzelmet ${top.points} ponttal.`
-        : `<b>${top.name}</b> nyerte a játékot ${top.points} ponttal.`
+        ? `<b>${escHtml(tiedWinners.map(p=>p.name).join(" és "))}</b> megosztotta a győzelmet ${top.points} ponttal.`
+        : `<b>${escHtml(top.name)}</b> nyerte a játékot ${top.points} ponttal.`
     );
 
     render();
@@ -474,21 +530,27 @@ function take3(colors){
   const p=state.players[state.turn];
 
   const availableColors=COLORS.filter(c=>state.bank[c]>0).length;
-  const requiredColors=Math.min(3,availableColors);
 
-  if(requiredColors===0){
-    return toast("A bankban nincs elvehető színes zseton.");
+  if(availableColors===0){
+    if(!hasAnyLegalAction(p)){
+      log(`<b>${escHtml(p.name)}</b> passzolt.`);
+      selectedColors=[];
+      selectedAction=null;
+      if(endTurn()) advance();
+      return;
+    }
+    return toast("Nincs elvehető színes zseton – válassz másik akciót.");
   }
 
-  if(
-    colors.length!==requiredColors ||
-    new Set(colors).size!==colors.length
-  ){
-    return toast(
-      requiredColors===3
-        ? "Pontosan 3 különböző színt válassz."
-        : `Most ${requiredColors} különböző színű zsetont vehetsz el.`
-    );
+  // With 3+ colours available, exactly 3 different colours are required.
+  // With only 2 colours available, the rules allow taking 2 or even 1.
+  // With only 1 colour available, exactly 1 can be taken.
+  if(availableColors>=3){
+    if(colors.length!==3 || new Set(colors).size!==3){
+      return toast("Pontosan 3 különböző színt válassz.");
+    }
+  }else if(colors.length<1 || colors.length>availableColors || new Set(colors).size!==colors.length){
+    return toast(`1–${availableColors} különböző színű zsetont választhatsz.`);
   }
 
   if(
@@ -505,7 +567,7 @@ function take3(colors){
   });
 
   log(
-    `<b>${p.name}</b> ${colors.length} különböző zsetont vett el.`
+    `<b>${escHtml(p.name)}</b> ${colors.length} különböző zsetont vett el.`
   );
 
   selectedColors=[];
@@ -531,7 +593,7 @@ function take2(c){
   p.tokens[c]+=2;
 
   log(
-    `<b>${p.name}</b> 2 ${LABEL[c]} zsetont vett el.`
+    `<b>${escHtml(p.name)}</b> 2 ${LABEL[c]} zsetont vett el.`
   );
 
   selectedAction=null;
@@ -631,7 +693,7 @@ function reserve(card,t,hidden=false){
   };
 
   log(
-    `<b>${p.name}</b> ${
+    `<b>${escHtml(p.name)}</b> ${
       hidden
         ? `vakon tartalékolt egy ${t}. szintű kártyát`
         : `tartalékolt egy ${t}. szintű kártyát`
@@ -726,7 +788,7 @@ function buy(card,source,t,idx){
   }
 
   log(
-    `<b>${p.name}</b> megvásárolt egy ${
+    `<b>${escHtml(p.name)}</b> megvásárolt egy ${
       source==="market"
         ? `${t}. szintű`
         : "tartalék"
@@ -781,7 +843,7 @@ function showDiscard(){
 
   actionArea.innerHTML=`
     <div class="panel" style="margin:0;background:#0f1929">
-      <b>${p.name}</b>, 10 zsetonnál több van nálad.
+      <b>${escHtml(p.name)}</b>, 10 zsetonnál több van nálad.
       Add vissza a felesleget a bankba.
     </div>
 
@@ -887,7 +949,7 @@ function showNobleChoice(){
   actionArea.innerHTML=`
     <div class="noble-choice-panel">
       <div class="noble-choice-heading">
-        <strong>👑 ${p.name}, több nemes közül választhatsz</strong>
+        <strong>👑 ${escHtml(p.name)}, több nemes közül választhatsz</strong>
         <span>Válassz egyet, majd görgess nyugodtan körbe a játékosok és kártyáik megtekintéséhez.</span>
       </div>
       <div class="choice-grid" id="nobleChoices"></div>
@@ -909,6 +971,7 @@ function showNobleChoice(){
     b.onclick=()=>{
       if(!state.nobleChoice) return;
       state.nobleChoice.selectedId=n.id;
+      save();
 
       grid.querySelectorAll(".choice").forEach(x=>{
         x.classList.toggle("noble-choice-selected",x===b);
@@ -938,7 +1001,7 @@ function renderNobleChoiceBar(){
   bar.innerHTML=`
     <div class="noble-choice-bar-inner">
       <div class="noble-choice-bar-text">
-        <span class="noble-choice-bar-kicker">👑 ${p?.name || "Játékos"} · Nemesválasztás</span>
+        <span class="noble-choice-bar-kicker">👑 ${escHtml(p?.name || "Játékos")} · Nemesválasztás</span>
         <strong>${selected ? `Kiválasztva: ${selected.points} pont · ${fmtReq(selected.req)}` : "Válassz egy nemest a fenti lehetőségek közül"}</strong>
       </div>
       <button class="primary noble-choice-confirm" type="button" ${selected ? "" : "disabled"}>
@@ -958,10 +1021,12 @@ function finalizeNobleChoice(){
   if(!choice?.selectedId) return;
 
   const p=state.players.find(x=>x.id===choice.playerId);
+  if(!p || p.id!==state.players[state.turn].id) return;
+  if(!choice.eligibleIds.includes(choice.selectedId)) return;
   const noble=state.nobles.find(n=>n.id===choice.selectedId && !n.claimedBy);
-  if(!p || !noble) return;
+  if(!noble) return;
 
-  takeNoble(p,noble);
+  if(!takeNoble(p,noble)) return;
   delete state.nobleChoice;
   document.getElementById("nobleChoiceBar")?.remove();
 
@@ -1025,17 +1090,17 @@ function renderGameOverOverlay(){
     <div class="game-over-card" role="dialog" aria-modal="true" aria-labelledby="gameOverTitle">
       <div class="game-over-crown" aria-hidden="true">♛</div>
       <div class="game-over-kicker">A JÁTÉK VÉGET ÉRT</div>
-      <h2 id="gameOverTitle">${shared ? "🏆 Döntetlen!" : `🏆 ${winners[0].name} nyert!`}</h2>
+      <h2 id="gameOverTitle">${shared ? "🏆 Döntetlen!" : `🏆 ${escHtml(winners[0].name)} nyert!`}</h2>
       <div class="game-over-winner-score">
         <strong>${topScore}</strong>
         <span>pont</span>
       </div>
-      ${shared ? `<div class="game-over-tie-text">${winnerNames} megosztják a győzelmet.</div>` : ""}
+      ${shared ? `<div class="game-over-tie-text">${escHtml(winnerNames)} megosztják a győzelmet.</div>` : ""}
       <div class="game-over-results">
         ${results.map((player,index)=>`
           <div class="game-over-result ${winnerIds.includes(player.id) ? "winner" : ""}">
             <span class="result-place">${winnerIds.includes(player.id) ? "🏆" : `${index+1}.`}</span>
-            <span class="result-name">${player.name}</span>
+            <span class="result-name">${escHtml(player.name)}</span>
             <strong>${player.points} pont</strong>
           </div>
         `).join("")}
@@ -1079,9 +1144,9 @@ function render(){
   turnBanner.innerHTML=
     state.winner
       ? bannerWinners.length>1
-        ? `🏆 <b>Döntetlen</b> – ${bannerWinners.map(x=>x.name).join(" és ")} · ${bannerWinners[0].points} pont`
-        : `🏆 <b>${bannerWinners[0]?.name||""}</b> nyert – ${bannerWinners[0]?.points||0} pont`
-      : `Most <b>${p.name}</b> következik · ${state.round}. forduló`;
+        ? `🏆 <b>Döntetlen</b> – ${escHtml(bannerWinners.map(x=>x.name).join(" és "))} · ${bannerWinners[0].points} pont`
+        : `🏆 <b>${escHtml(bannerWinners[0]?.name||"")}</b> nyert – ${bannerWinners[0]?.points||0} pont`
+      : `Most <b>${escHtml(p.name)}</b> következik · ${state.round}. forduló`;
 
   nobles.innerHTML=
     state.nobles.map(n=>`
@@ -1155,7 +1220,7 @@ function render(){
       }">
 
         <div class="player-name">
-          ${x.name}
+          ${escHtml(x.name)}
         </div>
 
         <div class="score">
@@ -1224,11 +1289,13 @@ function render(){
   renderGameOverOverlay();
 
   if(state.discardChoice){
+    document.querySelectorAll(".action-grid button").forEach(b=>b.disabled=true);
     showDiscard();
     return;
   }
 
   if(state.nobleChoice){
+    document.querySelectorAll(".action-grid button").forEach(b=>b.disabled=true);
     showNobleChoice();
     return;
   }
@@ -1269,10 +1336,12 @@ function renderTake3(){
       ${
         (()=>{
           const availableColors=COLORS.filter(c=>state.bank[c]>0).length;
-          const requiredColors=Math.min(3,availableColors);
-          return requiredColors===3
-            ? "Válassz 3 különböző színt."
-            : `A bankban csak ${requiredColors} különböző szín érhető el, ezért ${requiredColors} zsetont vehetsz el.`;
+          if(availableColors>=3) return "Válassz 3 különböző színt.";
+          if(availableColors===2) return "A bankban 2 szín érhető el: 1 vagy 2 különböző zsetont vehetsz el.";
+          if(availableColors===1) return "A bankban 1 szín érhető el: 1 zsetont vehetsz el.";
+          return hasAnyLegalAction(state.players[state.turn])
+            ? "Nincs elvehető színes zseton – válassz másik akciót."
+            : "Nincs más szabályos akció: passzolhatsz.";
         })()
       }
     </div>
@@ -1326,15 +1395,22 @@ function renderTake3(){
   });
 
   const availableColors=COLORS.filter(c=>state.bank[c]>0).length;
-  const requiredColors=Math.min(3,availableColors);
   const confirm=document.getElementById("take3confirm");
-  confirm.disabled=requiredColors===0 || selectedColors.length!==requiredColors;
+  const noOtherAction=availableColors===0 && !hasAnyLegalAction(state.players[state.turn]);
+  const validSelection=availableColors>=3
+    ? selectedColors.length===3
+    : availableColors>0
+      ? selectedColors.length>=1 && selectedColors.length<=availableColors
+      : noOtherAction;
+  confirm.disabled=!validSelection;
   confirm.textContent=
-    requiredColors===3
-      ? "Zsetonok elvétele"
-      : requiredColors===0
-        ? "Nincs elvehető zseton"
-        : `${requiredColors} zseton elvétele`;
+    availableColors>=3
+      ? "3 zseton elvétele"
+      : availableColors>0
+        ? `${selectedColors.length||"1 vagy 2"} zseton elvétele`
+        : noOtherAction
+          ? "Passz"
+          : "Nincs elvételehető zseton";
   confirm.onclick=()=>{
     take3(selectedColors);
   };
@@ -1538,7 +1614,7 @@ function showReserved(playerId){
       <div class="modal-head">
         <div>
           <div class="modal-eyebrow">${me.reserved.length}/3 TARTALÉK</div>
-          <h3>${me.name} tartalék kártyái</h3>
+          <h3>${escHtml(me.name)} tartalék kártyái</h3>
         </div>
         <button class="modal-close" type="button" aria-label="Bezárás">×</button>
       </div>
@@ -1575,7 +1651,11 @@ function showConfirm(title,message,onConfirm){
   overlay.querySelector("[data-confirm]").onclick=()=>{close();onConfirm()};
 }
 
+let textSelectionListenersInstalled=false;
+
 function preventTextSelectionAndContextMenu(){
+  if(textSelectionListenersInstalled) return;
+  textSelectionListenersInstalled=true;
   document.addEventListener("selectstart", e => {
     const t=e.target;
     if (t && (t.matches?.("input,textarea,select") || t.isContentEditable)) return;
@@ -1724,7 +1804,9 @@ document.getElementById(
 document.getElementById(
   "clearLog"
 ).onclick=()=>{
+  if(!state) return;
   state.log=[];
+  localStorage.setItem("splendor-prototype",JSON.stringify(state));
   render();
 };
 
